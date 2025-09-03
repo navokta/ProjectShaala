@@ -1,5 +1,6 @@
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import TrustBanner from '@/components/Home/TrustBanner';
 import HeroSection from '@/components/Home/HeroSection';
 import SharedCursor from '@/components/ui/SharedCursor';
 
@@ -9,6 +10,7 @@ export default function HomePage() {
       <Header />
       <main className="pt-16"> {/* Offset for sticky header */}
         <HeroSection />
+        <TrustBanner />
       </main>
       <Footer />
       {/* <SharedCursor /> */}
