@@ -3,18 +3,22 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Project from '@/models/Project';
 
-// GET: Fetch projects with filters (already implemented)
 export async function GET(request) {
   try {
+    // ✅ Connect to DB
     await dbConnect();
 
     const { searchParams } = new URL(request.url);
+
+    // 🎯 Parse Query Params
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || '';
     const minPrice = Number(searchParams.get('minPrice')) || 0;
     const maxPrice = Number(searchParams.get('maxPrice')) || 100000;
     const techStack = searchParams.get('techStack') || '';
+    const sort = searchParams.get('sort') || '';
 
+    // 🛠️ Build MongoDB Query
     const query = {};
 
     if (search) {
@@ -28,14 +32,31 @@ export async function GET(request) {
     if (techStack) query.techStack = { $in: [techStack] };
     query.price = { $gte: minPrice, $lte: maxPrice };
 
-    const projects = await Project.find(query).limit(20);
-    return NextResponse.json(projects);
+    // 📊 Sorting Logic
+    let sortOption = {};
+    if (sort === 'downloads') {
+      sortOption = { downloadCount: -1 }; // Highest first
+    } else if (sort === 'rating') {
+      sortOption = { rating: -1 };
+    } else {
+      sortOption = { createdAt: -1 }; // Default: newest
+    }
+
+    // 📥 Fetch Projects
+    const projects = await Project.find(query).sort(sortOption).limit(20);
+
+    // ✅ Success
+    return NextResponse.json(projects, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
+    console.error('🚨 API Error:', error.message || error);
+    return NextResponse.json(
+      { error: 'Failed to fetch projects', details: error.message },
+      { status: 500 }
+    );
   }
 }
 
-// POST: Add a new project
+// POST: Add new project
 export async function POST(request) {
   try {
     await dbConnect();
@@ -49,9 +70,9 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error adding project:', error);
+    console.error('❌ POST Error:', error.message || error);
     return NextResponse.json(
-      { error: 'Failed to add project' },
+      { error: 'Failed to add project', details: error.message },
       { status: 500 }
     );
   }
