@@ -7,9 +7,10 @@ import HeroSection from '@/components/Home/HeroSection';
 import TrustBanner from '@/components/Home/TrustBanner';
 import SearchFilters from '@/components/Home/SearchFilters';
 import ProjectGrid from '@/components/Home/ProjectGrid';
-import TrendingProjectsClient from '@/components/Home/TrendingProjectsClient';
+// import TrendingProjectsClient from '@/components/Home/TrendingProjectsClient';
 import HowItWorks from '@/components/Home/HowItWorks';
 import Testimonials from '@/components/Home/Testimonials';
+import StartSellingCTA from '@/components/Home/StartSellingCTA';
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -19,11 +20,12 @@ export default function HomePage() {
       <Header />
       <main className="pt-16">
         <HeroSection />
-        <TrustBanner />
         <SearchFilters onResults={setProjects} />
         <ProjectGrid projects={projects} />
-        <TrendingProjectsClient />
+        <StartSellingCTA />
         <HowItWorks />
+        <TrustBanner />
+        {/* <TrendingProjectsClient /> */}
         <Testimonials />
       </main>
       <Footer />
