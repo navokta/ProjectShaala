@@ -8,6 +8,7 @@ import TrustBanner from '@/components/Home/TrustBanner';
 import SearchFilters from '@/components/Home/SearchFilters';
 import ProjectGrid from '@/components/Home/ProjectGrid';
 import TrendingProjectsClient from '@/components/Home/TrendingProjectsClient';
+import HowItWorks from '@/components/Home/HowItWorks';
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -21,6 +22,7 @@ export default function HomePage() {
         <SearchFilters onResults={setProjects} />
         <ProjectGrid projects={projects} />
         <TrendingProjectsClient />
+        <HowItWorks />
       </main>
       <Footer />
     </>
