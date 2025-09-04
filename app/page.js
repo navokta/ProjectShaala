@@ -9,6 +9,7 @@ import SearchFilters from '@/components/Home/SearchFilters';
 import ProjectGrid from '@/components/Home/ProjectGrid';
 import TrendingProjectsClient from '@/components/Home/TrendingProjectsClient';
 import HowItWorks from '@/components/Home/HowItWorks';
+import Testimonials from '@/components/Home/Testimonials';
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -23,6 +24,7 @@ export default function HomePage() {
         <ProjectGrid projects={projects} />
         <TrendingProjectsClient />
         <HowItWorks />
+        <Testimonials />
       </main>
       <Footer />
     </>
