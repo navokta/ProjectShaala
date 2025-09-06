@@ -137,10 +137,10 @@ const Footer = () => {
             </ul>
             
             {/* Trust Badge */}
-            <div className="mt-6 p-3 bg-slate-900 rounded-lg">
+            {/* <div className="mt-6 p-3 bg-slate-900 rounded-lg">
               <p className="text-sm text-gray-300">Secure Payments via</p>
               <div className="font-bold text-white mt-1">Razorpay</div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
