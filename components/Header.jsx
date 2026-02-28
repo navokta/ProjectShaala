@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
+  SunIcon,
+  MoonIcon,
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -10,6 +12,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   // Detect scroll for header shadow
   useEffect(() => {
@@ -30,7 +33,7 @@ const Header = () => {
   return (
     <header
       className={`fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-md border-b
-        ${isScrolled ? "bg-white/90 border-gray-200" : "bg-white/70 border-transparent"}
+        ${isScrolled ? "bg-white/90 dark:bg-gray-900/90 border-gray-200 dark:border-gray-700" : "bg-white/70 dark:bg-gray-900/70 border-transparent"}
       `}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,7 +42,7 @@ const Header = () => {
           <div className="flex-shrink-0">
             <Link
               href="/"
-              className="text-2xl font-extrabold text-gray-900"
+              className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400"
             >
               ProjectShaala
             </Link>
@@ -51,11 +54,13 @@ const Header = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 relative group"
+                className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 
+                          font-medium transition-colors duration-200 relative group"
               >
                 {link.name}
                 <span
-                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 
+                                group-hover:w-full transition-all duration-300"
                 ></span>
               </Link>
             ))}
@@ -65,13 +70,17 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <Link
               href="/login"
-              className="text-gray-700 hover:text-gray-900 font-medium transition duration-200 px-3 py-2 rounded-md"
+              className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 
+                        font-medium transition duration-200 px-3 py-2 rounded-md"
             >
               Log In
             </Link>
             <Link
               href="/signup"
-              className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700
+                        text-white font-semibold px-5 py-2.5 rounded-full shadow-md hover:shadow-lg
+                        transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 
+                        focus:ring-indigo-500 focus:ring-offset-2"
             >
               Sign Up
             </Link>
@@ -81,7 +90,7 @@ const Header = () => {
           <div className="md:hidden flex items-center space-x-3">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:bg-gray-200"
+              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? (
@@ -95,29 +104,32 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 pb-4 pt-2">
+          <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 pb-4 pt-2">
             <nav className="flex flex-col space-y-3 px-4">
               {quickLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-gray-700 hover:text-gray-900 font-medium py-2 px-3 rounded-md hover:bg-gray-100"
+                  className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 
+                            font-medium py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}
                 </Link>
               ))}
-              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100 mt-2">
+              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800 mt-2">
                 <Link
                   href="/login"
-                  className="text-gray-700 hover:text-gray-900 font-medium py-2"
+                  className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 
+                            font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Log In
                 </Link>
                 <Link
                   href="/signup"
-                  className="w-full text-center bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-full shadow-sm"
+                  className="w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold 
+                            py-2.5 rounded-full shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up
