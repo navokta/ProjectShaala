@@ -1,3 +1,4 @@
+// components/Home/LoginModal.jsx
 'use client';
 
 import Header from '@/components/Header';
@@ -93,10 +94,10 @@ const LoginModal = () => {
         <div className="max-w-md w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h1 className="font-poppins font-bold text-4xl md:text-5xl text-gray-900 mb-3 tracking-tight">
               Welcome Back
             </h1>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="font-sans text-gray-600 text-sm md:text-base">
               Sign in to unlock your creative workspace
             </p>
           </div>
@@ -115,7 +116,7 @@ const LoginModal = () => {
                 <div className="space-y-5">
                   {/* Email or Username */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Email or Username <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -128,18 +129,18 @@ const LoginModal = () => {
                         value={formData.identifier}
                         onChange={handleChange}
                         onBlur={() => handleBlur('identifier')}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="you@company.com or username"
                       />
                     </div>
                     {errors.identifier && (
-                      <p className="mt-1 text-xs text-red-600">{errors.identifier}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.identifier}</p>
                     )}
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -152,7 +153,7 @@ const LoginModal = () => {
                         value={formData.password}
                         onChange={handleChange}
                         onBlur={() => handleBlur('password')}
-                        className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="••••••••"
                       />
                       <button
@@ -168,10 +169,10 @@ const LoginModal = () => {
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.password}</p>
                     )}
                     <div className="flex justify-end mt-2">
-                      <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-gray-700 transition">
+                      <Link href="/forgot-password" className="font-sans text-xs text-gray-500 hover:text-gray-700 transition">
                         Forgot password?
                       </Link>
                     </div>
@@ -181,7 +182,7 @@ const LoginModal = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-4 px-6 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm tracking-wide border border-gray-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center py-4 px-6 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-poppins font-semibold text-sm tracking-wide border border-gray-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <>
@@ -201,7 +202,7 @@ const LoginModal = () => {
               {/* Divider */}
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider">or continue with</span>
+                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
@@ -209,7 +210,7 @@ const LoginModal = () => {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300"
+                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
                   onClick={() => console.log('Google login')}
                 >
                   <FaGoogle className="h-5 w-5 mr-2" />
@@ -218,7 +219,7 @@ const LoginModal = () => {
 
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300"
+                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
                   onClick={() => console.log('GitHub login')}
                 >
                   <FaGithub className="h-5 w-5 mr-2" />
@@ -227,7 +228,7 @@ const LoginModal = () => {
               </div>
 
               {/* Sign Up Link */}
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-gray-500 font-sans">
                 Don’t have an account?{' '}
                 <Link href="/signup" className="font-semibold text-gray-900 hover:underline">
                   Create one
@@ -237,7 +238,7 @@ const LoginModal = () => {
           </div>
 
           <div className="text-center mt-6">
-            <p className="text-gray-400 text-xs">Secure • Professional • Minimal</p>
+            <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
           </div>
         </div>
       </div>

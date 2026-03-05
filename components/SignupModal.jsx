@@ -1,3 +1,4 @@
+// components/Home/SignupModal.jsx
 'use client';
 
 import Header from '@/components/Header';
@@ -114,10 +115,10 @@ const SignupModal = () => {
         <div className="max-w-lg w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h1 className="font-poppins font-bold text-4xl md:text-5xl text-gray-900 mb-3 tracking-tight">
               Join Us
             </h1>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="font-sans text-gray-600 text-sm md:text-base">
               Create your account and start your journey
             </p>
           </div>
@@ -127,7 +128,7 @@ const SignupModal = () => {
             <div className="p-8">
               {/* Form-level error */}
               {errors.form && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl font-sans">
                   ⚠️ {errors.form}
                 </div>
               )}
@@ -136,7 +137,7 @@ const SignupModal = () => {
                 <div className="space-y-5">
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -149,18 +150,18 @@ const SignupModal = () => {
                         value={formData.name}
                         onChange={handleChange}
                         onBlur={() => handleBlur('name')}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="John Doe"
                       />
                     </div>
                     {errors.name && (
-                      <p className="mt-1 text-xs text-red-600">{errors.name}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.name}</p>
                     )}
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Email <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -173,18 +174,18 @@ const SignupModal = () => {
                         value={formData.email}
                         onChange={handleChange}
                         onBlur={() => handleBlur('email')}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="you@company.com"
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.email}</p>
                     )}
                   </div>
 
                   {/* Phone (optional) */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Phone <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
@@ -197,18 +198,18 @@ const SignupModal = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         onBlur={() => handleBlur('phone')}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.phone}</p>
                     )}
                   </div>
 
                   {/* Username */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Username <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -221,18 +222,18 @@ const SignupModal = () => {
                         value={formData.username}
                         onChange={handleChange}
                         onBlur={() => handleBlur('username')}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="johndoe"
                       />
                     </div>
                     {errors.username && (
-                      <p className="mt-1 text-xs text-red-600">{errors.username}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.username}</p>
                     )}
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -245,7 +246,7 @@ const SignupModal = () => {
                         value={formData.password}
                         onChange={handleChange}
                         onBlur={() => handleBlur('password')}
-                        className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="••••••••"
                       />
                       <button
@@ -261,13 +262,13 @@ const SignupModal = () => {
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.password}</p>
                     )}
                   </div>
 
                   {/* Address (optional) */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Address <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
@@ -279,7 +280,7 @@ const SignupModal = () => {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="123 Main St, City, Country"
                       />
                     </div>
@@ -287,7 +288,7 @@ const SignupModal = () => {
 
                   {/* Headline (optional) */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
                       Headline <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
@@ -299,7 +300,7 @@ const SignupModal = () => {
                         name="headline"
                         value={formData.headline}
                         onChange={handleChange}
-                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm"
+                        className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="Designer, Developer, Creator"
                       />
                     </div>
@@ -309,7 +310,7 @@ const SignupModal = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-4 px-6 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm tracking-wide border border-gray-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center py-4 px-6 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-poppins font-semibold text-sm tracking-wide border border-gray-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <>
@@ -329,7 +330,7 @@ const SignupModal = () => {
               {/* Divider */}
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider">or continue with</span>
+                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
@@ -337,7 +338,7 @@ const SignupModal = () => {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300"
+                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
                   onClick={() => console.log('Google signup')}
                 >
                   <FaGoogle className="h-5 w-5 mr-2" />
@@ -346,7 +347,7 @@ const SignupModal = () => {
 
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300"
+                  className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
                   onClick={() => console.log('GitHub signup')}
                 >
                   <FaGithub className="h-5 w-5 mr-2" />
@@ -355,7 +356,7 @@ const SignupModal = () => {
               </div>
 
               {/* Login Link */}
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-gray-500 font-sans">
                 Already have an account?{' '}
                 <Link href="/login" className="font-semibold text-gray-900 hover:underline">
                   Log in
@@ -365,7 +366,7 @@ const SignupModal = () => {
           </div>
 
           <div className="text-center mt-6">
-            <p className="text-gray-400 text-xs">Secure • Professional • Minimal</p>
+            <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
           </div>
         </div>
       </div>
