@@ -2,21 +2,12 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
-import SharedCursor from '../ui/SharedCursor';
-import AnimatedBackground from '../ui/AnimatedBackground';
-import { useCursor } from '@/context/CursorContext';
 
 const HeroSection = () => {
-     const { textEnter, buttonEnter, leave } = useCursor();
-  const [cursorVariant, setCursorVariant] = useState("default");
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 to-indigo-900 py-16 px-4">
-      {/* Shared Cursor */}
-      <SharedCursor />
-      
-      {/* Animated Background */}
-      <AnimatedBackground />
+     
       
       <div className="container mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -28,15 +19,11 @@ const HeroSection = () => {
             className="w-full lg:w-1/2 text-center lg:text-left"
           >
             <motion.h1 
-              onMouseEnter={textEnter}
-              onMouseLeave={leave}
               className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight"
             >
               Turn Code into <span className="gradient-text">Commerce</span>
             </motion.h1>
             <motion.p 
-              onMouseEnter={textEnter}
-              onMouseLeave={leave}
               className="text-xl text-gray-200 mb-10 max-w-lg mx-auto lg:mx-0"
             >
               The marketplace where developers transform their skills and creations into thriving businesses. Showcase, sell, and grow your developer projects.
@@ -44,8 +31,6 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
               <Link href="/projects">
                 <motion.div
-                  onMouseEnter={buttonEnter}
-                  onMouseLeave={leave}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer text-center"
@@ -56,8 +41,6 @@ const HeroSection = () => {
               </Link>
               <Link href="/auth/register?as=seller">
                 <motion.div
-                  onMouseEnter={buttonEnter}
-                  onMouseLeave={leave}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 border-2 border-indigo-400 text-indigo-100 font-semibold rounded-xl hover:bg-indigo-800/20 transition-all duration-300 cursor-pointer text-center"
