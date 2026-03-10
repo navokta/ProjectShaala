@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Header from '@/components/Header/index';
 import Footer from '@/components/Footer';
-import Header from '@/components/Header';
 import HeroSection from '@/components/Home/HeroSection';
 import TrustBanner from '@/components/Home/TrustBanner';
 import SearchFilters from '@/components/Home/SearchFilters';
@@ -17,8 +17,8 @@ export default function HomePage() {
 
   return (
     <>
-      <Header />
-      <main className="pt-16">
+    <Header userType="public" isDashboard={false} />
+      <main>
         <HeroSection />
         <SearchFilters onResults={setProjects} />
         <ProjectGrid projects={projects} />
