@@ -1,163 +1,179 @@
-'use client';
+// components/Home/HowItWorks.jsx
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import {
+  MagnifyingGlassIcon,
+  ChatBubbleLeftIcon,
+  CreditCardIcon,
+  ArrowDownOnSquareIcon,
+  ArrowUpOnSquareIcon,
+  TagIcon,
+  CurrencyDollarIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
 
 export default function HowItWorks() {
-  const [activeRole, setActiveRole] = useState('buyer');
+  const [activeRole, setActiveRole] = useState("buyer");
 
-  // Steps for Buyer
+  // Steps for Buyer (Client)
   const buyerSteps = [
     {
-      title: 'Discover Projects',
-      description: 'Browse 100+ ready-to-use software projects by category, tech stack, and price.',
-      icon: '🔍',
-      gradient: 'from-blue-500 to-cyan-400'
+      title: "Post Your Requirement",
+      description:
+        "Describe your idea, set your budget, and define deliverables in minutes.",
+      icon: <MagnifyingGlassIcon className="w-7 h-7" />,
+      stepNumber: "01",
     },
     {
-      title: 'Chat with Developer',
-      description: 'Ask questions securely using our in-app chat — no phone or email sharing.',
-      icon: '💬',
-      gradient: 'from-purple-500 to-pink-400'
+      title: "Review Bids",
+      description:
+        "Receive proposals from skilled developers with portfolios and ratings.",
+      icon: <ChatBubbleLeftIcon className="w-7 h-7" />,
+      stepNumber: "02",
     },
     {
-      title: 'Buy Securely',
-      description: 'Pay safely via Razorpay — no external links, no risk.',
-      icon: '💳',
-      gradient: 'from-green-500 to-emerald-400'
+      title: "Hire & Collaborate",
+      description:
+        "Select your developer, start the workspace, and track progress in real-time.",
+      icon: <CreditCardIcon className="w-7 h-7" />,
+      stepNumber: "03",
     },
     {
-      title: 'Download & Deploy',
-      description: 'Get instant access to source code and deploy in minutes.',
-      icon: '📦',
-      gradient: 'from-orange-500 to-red-400'
-    }
+      title: "Deliver & Release",
+      description:
+        "Approve the final work, release payment, and launch your product.",
+      icon: <ArrowDownOnSquareIcon className="w-7 h-7" />,
+      stepNumber: "04",
+    },
   ];
 
-  // Steps for Seller
+  // Steps for Seller (Developer)
   const sellerSteps = [
     {
-      title: 'Upload Your Project',
-      description: 'Share your completed side projects, templates, or tools with the world.',
-      icon: '📤',
-      gradient: 'from-indigo-500 to-purple-400'
+      title: "Apply as Developer",
+      description:
+        "Submit your profile, showcase your skills, and get approved by our team.",
+      icon: <ArrowUpOnSquareIcon className="w-7 h-7" />,
+      stepNumber: "01",
     },
     {
-      title: 'Set Price & License',
-      description: 'Choose a price and license (MIT, Commercial, etc.) in seconds.',
-      icon: '🏷️',
-      gradient: 'from-teal-500 to-cyan-400'
+      title: "Browse Projects",
+      description:
+        "Explore client requirements that match your expertise and interests.",
+      icon: <MagnifyingGlassIcon className="w-7 h-7" />,
+      stepNumber: "02",
     },
     {
-      title: 'Earn Passive Income',
-      description: 'Get 80% of every sale — paid directly to your account.',
-      icon: '💸',
-      gradient: 'from-green-500 to-lime-400'
+      title: "Place Your Bid",
+      description:
+        "Submit your proposal with timeline, cost, and approach to win the project.",
+      icon: <TagIcon className="w-7 h-7" />,
+      stepNumber: "03",
     },
     {
-      title: 'Grow Your Profile',
-      description: 'Build credibility, get reviews, and grow your follower network.',
-      icon: '📈',
-      gradient: 'from-pink-500 to-rose-400'
-    }
+      title: "Earn & Grow",
+      description:
+        "Complete projects, get paid securely, and build your reputation on the platform.",
+      icon: <ChartBarIcon className="w-7 h-7" />,
+      stepNumber: "04",
+    },
   ];
 
-  const steps = activeRole === 'buyer' ? buyerSteps : sellerSteps;
+  const steps = activeRole === "buyer" ? buyerSteps : sellerSteps;
+  const roleLabel = activeRole === "buyer" ? "For Clients" : "For Developers";
 
   return (
-    <section className="py-20 px-6 sm:px-10 lg:px-20 bg-slate-950 relative overflow-hidden">
-      {/* Background Orbs */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-600/20 to-pink-600/10 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-blue-600/10 to-cyan-600/5 rounded-full blur-3xl"></div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
+    <section className="py-20 px-6 sm:px-10 lg:px-20 bg-white">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-gray-200 to-purple-100 bg-clip-text text-transparent">
-            How Project Shaala Works
+        <div className="text-center mb-16">
+          <h2 className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            How ProjectShaala Works
           </h2>
-          <p className="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
-            Whether you're buying or selling, the process is simple, secure, and built for developers.
+          <p className="font-sans text-lg text-gray-600 max-w-2xl mx-auto">
+            Whether you're hiring talent or building your career, our platform
+            makes collaboration simple, secure, and successful.
           </p>
         </div>
 
         {/* Role Toggle */}
-        <div className="flex justify-center mb-12">
-          <div className="relative inline-flex bg-gray-900 p-1 rounded-2xl border border-gray-800 shadow-2xl">
+        <div className="flex justify-center mb-16">
+          <div className="inline-flex bg-gray-100 p-1 rounded-xl border border-gray-200">
             <button
-              onClick={() => setActiveRole('buyer')}
-              className={`px-6 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative z-10 ${
-                activeRole === 'buyer'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-gray-200'
+              onClick={() => setActiveRole("buyer")}
+              className={`px-6 py-3 text-sm font-poppins font-medium rounded-lg transition-all duration-300 ${
+                activeRole === "buyer"
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              For Buyers
+              For Clients
             </button>
             <button
-              onClick={() => setActiveRole('seller')}
-              className={`px-6 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative z-10 ${
-                activeRole === 'seller'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-gray-200'
+              onClick={() => setActiveRole("developer")}
+              className={`px-6 py-3 text-sm font-poppins font-medium rounded-lg transition-all duration-300 ${
+                activeRole === "developer"
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              For Sellers
+              For Developers
             </button>
-
-            {/* Slider Background */}
-            <div
-              className={`absolute inset-0 m-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl transform transition-transform duration-300 z-0 ${
-                activeRole === 'seller' ? 'translate-x-full' : 'translate-x-0'
-              }`}
-              style={{
-                width: 'calc(50% - 0.5rem)',
-                height: 'calc(100% - 0.5rem)'
-              }}
-            ></div>
           </div>
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="group bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10"
+              className="group relative bg-white border border-gray-200 rounded-2xl p-6 lg:p-7 hover:border-gray-900 hover:shadow-lg transition-all duration-300"
             >
+              {/* Step Number Badge */}
+              <div className="absolute -top-3 -left-3 w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center font-poppins font-bold text-sm shadow-md">
+                {step.stepNumber}
+              </div>
+
               {/* Icon Circle */}
-              <div
-                className={`w-14 h-14 bg-gradient-to-r ${step.gradient} rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300`}
-              >
+              <div className="w-14 h-14 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center text-gray-900 mb-5 group-hover:bg-gray-900 group-hover:text-white group-hover:border-gray-900 transition-all duration-300">
                 {step.icon}
               </div>
 
               {/* Step Title */}
-              <h3 className="text-xl font-bold text-gray-100 mb-3 group-hover:text-purple-300 transition-colors">
+              <h3 className="font-poppins text-lg font-semibold text-gray-900 mb-3 group-hover:text-gray-900 transition-colors">
                 {step.title}
               </h3>
 
               {/* Description */}
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="font-sans text-gray-600 text-sm leading-relaxed">
                 {step.description}
               </p>
 
-              {/* Step Number */}
-              <div className="absolute top-6 right-6 w-8 h-8 bg-gray-800 text-gray-400 rounded-full flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {index + 1}
+              {/* Hover Arrow */}
+              <div className="mt-4 flex items-center text-gray-400 group-hover:text-gray-900 transition-colors">
+                <span className="text-sm font-sans font-medium">
+                  Learn more
+                </span>
+                <svg
+                  className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
               </div>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="text-center mt-16">
-          <button
-            onClick={() => setActiveRole(activeRole === 'buyer' ? 'seller' : 'buyer')}
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
-          >
-            Switch to {activeRole === 'buyer' ? 'Sellers' : 'Buyers'} →
-          </button>
-        </div>
+        {/* CTA Section */}
       </div>
     </section>
   );
