@@ -1,3 +1,4 @@
+// app/page.jsx
 "use client";
 
 import { useState } from "react";
@@ -7,6 +8,7 @@ import HeroSection from "@/components/Home/HeroSection";
 import TrustBanner from "@/components/Home/TrustBanner";
 import HowItWorks from "@/components/Home/HowItWorks";
 import Testimonials from "@/components/Home/Testimonials";
+import SectionDivider from "@/components/UI/SectionDivider";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -14,13 +16,17 @@ export default function HomePage() {
   return (
     <>
       <Header userType="public" isDashboard={false} />
-      <main>
+
+      <main className="overflow-hidden">
         <HeroSection />
+        <SectionDivider variant="arrow" />
         <HowItWorks />
+        <SectionDivider variant="gradient" />
         <TrustBanner />
-        {/* <TrendingProjectsClient /> */}
+        <SectionDivider variant="dotted" />
         <Testimonials />
       </main>
+
       <Footer />
     </>
   );

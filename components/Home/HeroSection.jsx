@@ -94,37 +94,8 @@ const Hero = () => {
         </div>
 
         {/* Optional: Stats or Trust Indicators */}
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 max-w-3xl mx-auto">
-          <div className="text-center">
-            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
-              500+
-            </div>
-            <div className="font-sans text-sm text-gray-500 mt-1">Projects</div>
-          </div>
-          <div className="text-center">
-            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
-              200+
-            </div>
-            <div className="font-sans text-sm text-gray-500 mt-1">
-              Developers
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
-              98%
-            </div>
-            <div className="font-sans text-sm text-gray-500 mt-1">
-              Success Rate
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
-              4.9
-            </div>
-            <div className="font-sans text-sm text-gray-500 mt-1">Rating</div>
-          </div>
-        </div>
       </div>
+      <hr />
     </section>
   );
 };
