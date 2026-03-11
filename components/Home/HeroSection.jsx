@@ -13,38 +13,53 @@ const Hero = () => {
   return (
     <section className="relative bg-white min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gray-50 opacity-50">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20"></div>
-      </div>
 
       <div className="relative max-w-5xl mx-auto text-center">
         {/* Welcome Heading */}
+        // components/Home/HeroSection.jsx - Heading Part
         <h1 className="font-poppins text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
           Welcome to{" "}
           <span className="relative inline-block">
-            <span className="relative z-10">ProjectShaala</span>
+            <span
+              className="relative z-10 text-5xl sm:text-6xl lg:text-7xl text-gray-900"
+              style={{
+                fontFamily: "'Dancing Script', cursive",
+                lineHeight: "1.1",
+                letterSpacing: "-0.02em",
+                fontWeight: "700",
+              }}
+            >
+              ProjectShaala
+            </span>
             <svg
-              className="absolute -bottom-2 left-0 w-full h-3 text-gray-900 -z-0"
-              viewBox="0 0 200 9"
+              className="absolute -bottom-1 sm:-bottom-2 left-0 w-full h-3 sm:h-4 text-gray-900 -z-0 opacity-80"
+              viewBox="0 0 300 12"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M2.00025 6.99997C2.00025 6.99997 18.9393 2.55553 41.6669 2.55553C64.3945 2.55553 84.0002 6.99997 84.0002 6.99997"
+                d="M3 9C3 9 25 4 60 4C95 4 120 9 120 9"
                 stroke="currentColor"
-                strokeWidth="3"
+                strokeWidth="2.5"
                 strokeLinecap="round"
               />
               <path
-                d="M100 6.99997C100 6.99997 116.939 2.55553 139.667 2.55553C162.394 2.55553 182 6.99997 182 6.99997"
+                d="M135 9C135 9 160 4 195 4C230 4 252 9 252 9"
                 stroke="currentColor"
-                strokeWidth="3"
+                strokeWidth="2.5"
                 strokeLinecap="round"
               />
+              <path
+                d="M252 9C252 9 260 7 265 9C270 11 268 14 265 15"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+                className="opacity-60"
+              />
             </svg>
+            <span className="absolute -right-2 -top-2 w-4 h-4 bg-gray-900/10 rounded-full blur-sm animate-pulse" />
           </span>
         </h1>
-
         {/* Main Description */}
         <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 sm:p-10 lg:p-12 mb-10 shadow-sm hover:shadow-md transition-shadow duration-300">
           <p className="font-sans text-lg sm:text-xl lg:text-2xl text-gray-700 leading-relaxed">
@@ -56,7 +71,6 @@ const Hero = () => {
             collaborate, and create something amazing.
           </p>
         </div>
-
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12">
           {/* Buy a Project Button */}
@@ -79,7 +93,6 @@ const Hero = () => {
             <ArrowRightIcon className="w-5 h-5 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
           </Link>
         </div>
-
         {/* Motivational Quote */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-3xl mx-auto shadow-sm">
           <blockquote className="font-sans text-base sm:text-lg lg:text-xl text-gray-600 italic leading-relaxed">
@@ -92,7 +105,6 @@ const Hero = () => {
             <div className="w-12 h-0.5 bg-gray-300"></div>
           </div>
         </div>
-
         {/* Optional: Stats or Trust Indicators */}
       </div>
       <hr />
