@@ -1,18 +1,20 @@
 // components/Footer/FooterSupportLinks.jsx
 import Link from 'next/link';
 
+
 const links = [
   { name: '?', href: '#' },
 ];
 
+
 const FooterSupportLinks = () => {
   return (
     <div>
-      <h3 className="font-poppins font-semibold text-white mb-4">Developers</h3>
+      <h3 className="font-poppins font-semibold text-gray-900 mb-4">Developers</h3>
       <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.name}>
-            <Link href={link.href} className="font-sans text-sm text-gray-400 hover:text-white transition">
+            <Link href={link.href} className="font-sans text-sm text-gray-600 hover:text-gray-900 transition">
               {link.name}
             </Link>
           </li>
