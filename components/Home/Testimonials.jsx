@@ -25,17 +25,6 @@ export default function Testimonials() {
       color: "from-amber-400 to-orange-500",
     },
     {
-      id: 2,
-      name: "Priya Mehta",
-      role: "Startup Founder",
-      avatar: "https://placehold.co/100/111827/ffffff?text=PM",
-      rating: 4.9,
-      badge: "Verified Client",
-      text: "Found a talented Next.js developer who delivered my SaaS MVP 2 weeks ahead of schedule. The workspace tools made collaboration seamless.",
-      projects: "3 projects hired",
-      color: "from-emerald-400 to-teal-500",
-    },
-    {
       id: 3,
       name: "Sakshi Jain",
       role: "Open-Source Creator",
