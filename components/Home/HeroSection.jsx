@@ -1,154 +1,132 @@
+// components/Home/Hero.jsx
 "use client";
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useState } from 'react';
 
-const HeroSection = () => {
+import { useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRightIcon,
+  CodeBracketIcon,
+  CommandLineIcon,
+} from "@heroicons/react/24/outline";
 
+const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 to-indigo-900 py-16 px-4">
-     
-      
-      <div className="container mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Text Content */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="w-full lg:w-1/2 text-center lg:text-left"
-          >
-            <motion.h1 
-              className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight"
-            >
-              Turn Code into <span className="gradient-text">Commerce</span>
-            </motion.h1>
-            <motion.p 
-              className="text-xl text-gray-200 mb-10 max-w-lg mx-auto lg:mx-0"
-            >
-              The marketplace where developers transform their skills and creations into thriving businesses. Showcase, sell, and grow your developer projects.
-            </motion.p>
-            <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
-              <Link href="/projects">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer text-center"
-                >
-                  Explore Projects
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 opacity-75 blur-md -z-10"></div>
-                </motion.div>
-              </Link>
-              <Link href="/auth/register?as=seller">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 border-2 border-indigo-400 text-indigo-100 font-semibold rounded-xl hover:bg-indigo-800/20 transition-all duration-300 cursor-pointer text-center"
-                >
-                  Become a Seller
-                </motion.div>
-              </Link>
-            </div>
-          </motion.div>
-          
-          {/* Illustration */}
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full lg:w-1/2 flex justify-center"
-          >
-            <div className="relative w-full max-w-md">
-              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
-              <div className="relative bg-slate-800/40 backdrop-blur-md rounded-2xl shadow-2xl p-8 h-96 flex items-center justify-center border border-slate-700/50">
-                <div className="w-full h-full flex flex-col items-center justify-center">
-                  <motion.div 
-                    className="relative mb-6"
-                    animate={{
-                      y: [0, -10, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-12 h-12 md:w-16 md:h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                      </svg>
-                    </div>
-                    <motion.div 
-                      className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center"
-                      animate={{
-                        rotate: [0, 360],
-                      }}
-                      transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    >
-                      <svg className="w-6 h-6 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                    </motion.div>
-                  </motion.div>
-                  <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
-                    {[1, 2, 3, 4, 5, 6].map((item) => (
-                      <motion.div
-                        key={item}
-                        whileHover={{ scale: 1.1, backgroundColor: "rgba(99, 102, 241, 0.5)" }}
-                        className="h-10 bg-slate-700/50 rounded-lg flex items-center justify-center backdrop-blur-sm"
-                        animate={{
-                          y: [0, item % 2 === 0 ? -5 : 5, 0],
-                        }}
-                        transition={{
-                          duration: 2 + item,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                          delay: item * 0.2,
-                        }}
-                      >
-                        <div className="h-2 w-2 bg-indigo-400 rounded-full"></div>
-                      </motion.div>
-                    ))}
-                  </div>
-                  <motion.p 
-                    className="text-indigo-300 font-medium mt-6"
-                    animate={{
-                      opacity: [0.7, 1, 0.7],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    Developer Marketplace
-                  </motion.p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+    <section className="relative bg-white min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gray-50 opacity-50">
+        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20"></div>
       </div>
 
-      <style jsx>{`
-        .bg-grid-pattern {
-          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-        }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          text-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
-        }
-      `}</style>
+      <div className="relative max-w-5xl mx-auto text-center">
+        {/* Welcome Heading */}
+        <h1 className="font-poppins text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          Welcome to{" "}
+          <span className="relative inline-block">
+            <span className="relative z-10">ProjectShaala</span>
+            <svg
+              className="absolute -bottom-2 left-0 w-full h-3 text-gray-900 -z-0"
+              viewBox="0 0 200 9"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.00025 6.99997C2.00025 6.99997 18.9393 2.55553 41.6669 2.55553C64.3945 2.55553 84.0002 6.99997 84.0002 6.99997"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <path
+                d="M100 6.99997C100 6.99997 116.939 2.55553 139.667 2.55553C162.394 2.55553 182 6.99997 182 6.99997"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+        </h1>
+
+        {/* Main Description */}
+        <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 sm:p-10 lg:p-12 mb-10 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <p className="font-sans text-lg sm:text-xl lg:text-2xl text-gray-700 leading-relaxed">
+            A dynamic marketplace where{" "}
+            <span className="font-semibold text-gray-900">clients</span> hire
+            skilled{" "}
+            <span className="font-semibold text-gray-900">developers</span> to
+            build exceptional web, app, and software projects. Connect,
+            collaborate, and create something amazing.
+          </p>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12">
+          {/* Buy a Project Button */}
+          <Link
+            href="/projects"
+            className="group relative w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base sm:text-lg font-poppins font-semibold text-white bg-gray-900 rounded-xl border-2 border-gray-900 transition-all duration-300 hover:bg-white hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-200"
+          >
+            <CommandLineIcon className="w-5 h-5 mr-2" />
+            Buy a Project
+            <ArrowRightIcon className="w-5 h-5 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+          </Link>
+
+          {/* Sell a Project Button */}
+          <Link
+            href="/developers"
+            className="group relative w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base sm:text-lg font-poppins font-semibold text-gray-900 bg-white rounded-xl border-2 border-gray-900 transition-all duration-300 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-200"
+          >
+            <CodeBracketIcon className="w-5 h-5 mr-2" />
+            Sell a Project
+            <ArrowRightIcon className="w-5 h-5 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+          </Link>
+        </div>
+
+        {/* Motivational Quote */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 max-w-3xl mx-auto shadow-sm">
+          <blockquote className="font-sans text-base sm:text-lg lg:text-xl text-gray-600 italic leading-relaxed">
+            &ldquo;The best way to predict the future is to create it. Build
+            your dreams with the right team, one project at a time.&rdquo;
+          </blockquote>
+          <div className="mt-4 flex items-center justify-center gap-2 text-gray-400">
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+            <CodeBracketIcon className="w-4 h-4" />
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+          </div>
+        </div>
+
+        {/* Optional: Stats or Trust Indicators */}
+        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 max-w-3xl mx-auto">
+          <div className="text-center">
+            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
+              500+
+            </div>
+            <div className="font-sans text-sm text-gray-500 mt-1">Projects</div>
+          </div>
+          <div className="text-center">
+            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
+              200+
+            </div>
+            <div className="font-sans text-sm text-gray-500 mt-1">
+              Developers
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
+              98%
+            </div>
+            <div className="font-sans text-sm text-gray-500 mt-1">
+              Success Rate
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="font-poppins text-2xl sm:text-3xl font-bold text-gray-900">
+              4.9
+            </div>
+            <div className="font-sans text-sm text-gray-500 mt-1">Rating</div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
 
-export default HeroSection;
+export default Hero;
