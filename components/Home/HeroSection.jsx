@@ -16,7 +16,7 @@ const Hero = () => {
 
       <div className="relative max-w-5xl mx-auto text-center">
         {/* Welcome Heading */}
-        // components/Home/HeroSection.jsx - Heading Part
+        {/* components/Home/HeroSection.jsx - Heading Part */}
         <h1 className="font-poppins text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
           Welcome to{" "}
           <span className="relative inline-block">
