@@ -3,10 +3,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { UserCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const ProfileDropdown = ({ userType = 'buyer' }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useAuth();
 
   const menuItems = [
     { name: 'Profile', href: '/profile' },
@@ -15,7 +17,7 @@ const ProfileDropdown = ({ userType = 'buyer' }) => {
       name: userType === 'buyer' ? 'Payments' : 'Earnings',
       href: userType === 'buyer' ? '/dashboard/payments' : '/developer/earnings',
     },
-    { name: 'Logout', href: '#', onClick: () => console.log('logout') },
+    { name: 'Logout', href: '#', onClick: logout },
   ];
 
   return (
