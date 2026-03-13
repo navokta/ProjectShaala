@@ -11,7 +11,10 @@
   "dependencies": {
     "24": "link:@heroicons/react/24",
     "@heroicons/react": "^2.2.0",
+    "bcryptjs": "^3.0.3",
+    "cookie": "^1.1.1",
     "framer-motion": "^12.23.12",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.541.0",
     "mongoose": "^8.18.0",
     "next": "15.5.0",
