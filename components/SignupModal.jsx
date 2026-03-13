@@ -1,8 +1,10 @@
-// components/Home/SignupModal.jsx
 'use client';
 
-import Header from '@/components/Header';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Link from 'next/link';
 import {
   UserIcon,
   PhoneIcon,
@@ -16,9 +18,10 @@ import {
   EyeSlashIcon,
 } from '@heroicons/react/24/solid';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
-import Link from 'next/link';
 
 const SignupModal = () => {
+  const router = useRouter();
+  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -35,45 +38,26 @@ const SignupModal = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Full name is required';
-    }
-
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Enter a valid email address';
-    }
-
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!emailRegex.test(formData.email)) newErrors.email = 'Enter a valid email address';
     if (formData.phone.trim()) {
       const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
-      if (!phoneRegex.test(formData.phone)) {
-        newErrors.phone = 'Enter a valid phone number';
-      }
+      if (!phoneRegex.test(formData.phone)) newErrors.phone = 'Enter a valid phone number';
     }
-
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (!usernameRegex.test(formData.username)) {
+    if (!formData.username.trim()) newErrors.username = 'Username is required';
+    else if (!usernameRegex.test(formData.username)) {
       newErrors.username = 'Username must be 3-20 characters (letters, numbers, underscore)';
     }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     return newErrors;
   };
 
@@ -81,17 +65,14 @@ const SignupModal = () => {
     e.preventDefault();
     const validationErrors = validateForm();
     setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
 
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
-      console.log('User signed up:', formData);
-    } catch {
-      setErrors({ form: 'Something went wrong. Please try again.' });
+      await signup(formData);
+      router.push('/');
+    } catch (error) {
+      setErrors({ form: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -99,18 +80,13 @@ const SignupModal = () => {
 
   const handleBlur = (field) => {
     const validationErrors = validateForm();
-    if (validationErrors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
-    } else {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
-    }
+    if (validationErrors[field]) setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
+    else setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
   return (
     <>
       <Header />
-
-      {/* Clean white background */}
       <div className="min-h-screen pt-16 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-lg w-full">
           {/* Header */}
@@ -126,7 +102,6 @@ const SignupModal = () => {
           {/* Signup Card */}
           <div className="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
             <div className="p-8">
-              {/* Form-level error */}
               {errors.form && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl font-sans">
                   ⚠️ {errors.form}
@@ -306,7 +281,6 @@ const SignupModal = () => {
                     </div>
                   </div>
 
-                  {/* Sign Up Button */}
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -327,14 +301,12 @@ const SignupModal = () => {
                 </div>
               </form>
 
-              {/* Divider */}
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
                 <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
-              {/* Social Buttons */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <button
                   type="button"
@@ -344,7 +316,6 @@ const SignupModal = () => {
                   <FaGoogle className="h-5 w-5 mr-2" />
                   Google
                 </button>
-
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
@@ -355,7 +326,6 @@ const SignupModal = () => {
                 </button>
               </div>
 
-              {/* Login Link */}
               <p className="text-center text-xs text-gray-500 font-sans">
                 Already have an account?{' '}
                 <Link href="/login" className="font-semibold text-gray-900 hover:underline">
@@ -364,7 +334,6 @@ const SignupModal = () => {
               </p>
             </div>
           </div>
-
           <div className="text-center mt-6">
             <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
           </div>

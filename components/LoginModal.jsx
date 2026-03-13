@@ -1,8 +1,10 @@
-// components/Home/LoginModal.jsx
 'use client';
 
-import Header from '@/components/Header';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Link from 'next/link';
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -11,9 +13,10 @@ import {
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/solid';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
-import Link from 'next/link';
 
 const LoginModal = () => {
+  const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,34 +25,17 @@ const LoginModal = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    // Identifier (email/username) validation
-    if (!formData.identifier.trim()) {
-      newErrors.identifier = 'Email or username is required';
-    } else {
-      // Check if it looks like an email (optional)
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      // If it contains @, treat as email and validate format
-      if (formData.identifier.includes('@') && !emailRegex.test(formData.identifier)) {
-        newErrors.identifier = 'Enter a valid email address';
-      }
-      // Username can be any non-empty string, no extra validation
+    if (!formData.identifier.trim()) newErrors.identifier = 'Email or username is required';
+    else if (formData.identifier.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.identifier)) {
+      newErrors.identifier = 'Enter a valid email address';
     }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     return newErrors;
   };
 
@@ -57,20 +43,14 @@ const LoginModal = () => {
     e.preventDefault();
     const validationErrors = validateForm();
     setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
 
     setIsLoading(true);
-    setErrors({}); // clear any previous form-level errors
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log('Login attempt with:', formData);
-      // Here you would call your authentication API
-    } catch {
-      setErrors({ form: 'Invalid email/username or password.' });
+      await login(formData.identifier, formData.password);
+      router.push('/');
+    } catch (error) {
+      setErrors({ form: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -78,18 +58,13 @@ const LoginModal = () => {
 
   const handleBlur = (field) => {
     const validationErrors = validateForm();
-    if (validationErrors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
-    } else {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
-    }
+    if (validationErrors[field]) setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
+    else setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
   return (
     <>
       <Header />
-
-      {/* Clean white background */}
       <div className="min-h-screen pt-16 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-md w-full">
           {/* Header */}
@@ -105,7 +80,6 @@ const LoginModal = () => {
           {/* Login Card */}
           <div className="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
             <div className="p-8">
-              {/* Form-level error */}
               {errors.form && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
                   ⚠️ {errors.form}
@@ -178,7 +152,6 @@ const LoginModal = () => {
                     </div>
                   </div>
 
-                  {/* Login Button */}
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -199,14 +172,13 @@ const LoginModal = () => {
                 </div>
               </form>
 
-              {/* Divider */}
+              {/* Divider and social buttons remain same */}
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
                 <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
-              {/* Social Buttons */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <button
                   type="button"
@@ -216,7 +188,6 @@ const LoginModal = () => {
                   <FaGoogle className="h-5 w-5 mr-2" />
                   Google
                 </button>
-
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
@@ -227,7 +198,6 @@ const LoginModal = () => {
                 </button>
               </div>
 
-              {/* Sign Up Link */}
               <p className="text-center text-xs text-gray-500 font-sans">
                 Don’t have an account?{' '}
                 <Link href="/signup" className="font-semibold text-gray-900 hover:underline">
@@ -236,7 +206,6 @@ const LoginModal = () => {
               </p>
             </div>
           </div>
-
           <div className="text-center mt-6">
             <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
           </div>
