@@ -1,8 +1,8 @@
 // app/api/auth/forgot-password/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+import { connectDB } from "@/lib/mongodb";
+import User from "@/lib/models/User";
 import { sendEmail } from "@/lib/email";
 
 export async function POST(request) {
