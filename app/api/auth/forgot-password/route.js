@@ -1,13 +1,13 @@
 // app/api/auth/forgot-password/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { connectDB } from "@/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import { sendEmail } from "@/lib/email";
 
 export async function POST(request) {
   try {
-    await connectDB();
+    await connectToDatabase();
     const { email } = await request.json();
 
     // Validate email

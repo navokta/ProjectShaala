@@ -1,14 +1,14 @@
 // app/api/auth/reset-password/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { connectDB } from "@/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import bcrypt from "bcryptjs";
 
 // GET - Validate token
 export async function GET(request) {
   try {
-    await connectDB();
+    await connectToDatabase();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
 
@@ -48,7 +48,7 @@ export async function GET(request) {
 // POST - Reset password
 export async function POST(request) {
   try {
-    await connectDB();
+    await connectToDatabase();
     const { token, password } = await request.json();
 
     // Validate inputs
