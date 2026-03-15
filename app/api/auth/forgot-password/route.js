@@ -6,34 +6,41 @@ import User from "@/lib/models/User";
 import { sendEmail } from "@/lib/email";
 
 export async function POST(request) {
-  try {
-    await connectToDatabase();
-    const { email } = await request.json();
+  console.log("🔥 [API] Forgot Password Hit!");
 
-    // Validate email
+  try {
+    const body = await request.json();
+    console.log("📥 [API] Request Body:", body);
+
+    const { email } = body;
     if (!email) {
+      console.warn("⚠️ [API] Email missing in request");
       return NextResponse.json(
         { message: "Email is required" },
         { status: 400 },
       );
     }
 
-    // Find user
+    await connectToDatabase();
+    console.log("🗄️ [API] Database Connected");
+
     const user = await User.findOne({ email });
 
-    // Don't reveal if email exists (security best practice)
+    // Security: Don't reveal if email exists
     if (!user) {
+      console.log("ℹ️ [API] No user found (Security: not revealing)");
       return NextResponse.json(
         { message: "If an account exists, a reset link has been sent" },
         { status: 200 },
       );
     }
+    console.log("👤 [API] User Found:", user._id);
 
-    // Generate reset token
+    // 🔐 TOKEN GENERATION - YE PART MISSING THA!
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenExpiry = Date.now() + 3600000; // 1 hour
 
-    // Save token to database (hashed)
+    // Hash token before storing (security best practice)
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
@@ -43,58 +50,66 @@ export async function POST(request) {
     user.resetPasswordExpiry = resetTokenExpiry;
     await user.save();
 
-    // Create reset URL
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password/${resetToken}`;
+    console.log("🔑 [API] Reset token generated & saved");
+    // 🔐 TOKEN GENERATION END
 
-    // Send email
+    // Create reset URL - Ab resetToken defined hai! ✅
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password/${resetToken}`;
+    console.log("🔗 [API] Generated Reset URL:", resetUrl);
+
+    console.log("🚀 [API] Calling sendEmail function...");
     await sendEmail({
       to: user.email,
-      subject: "Reset Your ProjectShaala Password",
+      subject: "🔐 Reset Your ProjectShaala Password",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: #111827; padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">ProjectShaala</h1>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+          <div style="background: #111827; padding: 24px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">ProjectShaala</h1>
           </div>
-          <div style="padding: 30px; background: #f9fafb;">
+          <div style="padding: 32px; background: #ffffff;">
             <h2 style="color: #111827; margin-top: 0;">Password Reset Request</h2>
             <p style="color: #4b5563; line-height: 1.6;">
-              You requested to reset your password for your ProjectShaala account.
-              Click the button below to create a new password:
+              Hi ${user.name},<br><br>
+              You requested to reset your password. Click the button below to create a new password:
             </p>
-            <div style="text-align: center; margin: 30px 0;">
+            <div style="text-align: center; margin: 32px 0;">
               <a href="${resetUrl}" 
-                 style="background: #111827; color: white; padding: 15px 40px; 
-                        text-decoration: none; border-radius: 10px; display: inline-block;
-                        font-weight: bold;">
+                 style="background: #111827; color: white; padding: 14px 32px; 
+                        text-decoration: none; border-radius: 8px; display: inline-block;
+                        font-weight: 600; font-size: 16px;">
                 Reset Password
               </a>
             </div>
-            <p style="color: #4b5563; line-height: 1.6;">
-              Or copy and paste this link into your browser:
+            <p style="color: #6b7280; font-size: 14px; background: #f9fafb; padding: 16px; border-radius: 8px;">
+              <strong>Link expires in:</strong> 1 hour<br>
+              <strong>Requested from:</strong> ${new Date().toLocaleString()}
             </p>
-            <p style="color: #111827; word-break: break-all; font-size: 14px;">
-              ${resetUrl}
-            </p>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-              <strong>Note:</strong> This link will expire in 1 hour for security reasons.
-            </p>
-            <p style="color: #6b7280; font-size: 14px;">
-              If you didn't request this, please ignore this email.
+            <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+              If you didn't request this, please ignore this email or contact support.
             </p>
           </div>
-          <div style="background: #111827; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
+          <div style="background: #f9fafb; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px; border-top: 1px solid #e5e7eb;">
             <p>© ${new Date().getFullYear()} ProjectShaala. All rights reserved.</p>
+            <p style="margin-top: 8px;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/contact" style="color: #6b7280;">Contact Support</a>
+            </p>
           </div>
         </div>
       `,
     });
 
+    console.log("✅ [API] Reset email sent successfully");
+
     return NextResponse.json(
-      { message: "Reset link sent successfully" },
+      { message: "If an account exists, a reset link has been sent" },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Forgot password error:", error);
+    console.error("💥 [API] GLOBAL ERROR:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
     return NextResponse.json(
       { message: "Something went wrong. Please try again." },
       { status: 500 },
