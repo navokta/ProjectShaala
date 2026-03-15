@@ -7,12 +7,7 @@ import {
   MapPinIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import {
-  TwitterIcon,
-  LinkedInIcon,
-  GitHubIcon,
-  InstagramIcon,
-} from "react-icons";
+import { FaTwitter, FaLinkedin, FaGithub, FaInstagram } from "react-icons/fa";
 
 export default function ContactInfo() {
   const contactDetails = [
@@ -43,15 +38,19 @@ export default function ContactInfo() {
   ];
 
   const socialLinks = [
-    { icon: <TwitterIcon className="w-5 h-5" />, href: "#", label: "Twitter" },
     {
-      icon: <LinkedInIcon className="w-5 h-5" />,
+      icon: <FaTwitter className="w-5 h-5" />,
+      href: "#",
+      label: "Twitter",
+    },
+    {
+      icon: <FaLinkedin className="w-5 h-5" />,
       href: "#",
       label: "LinkedIn",
     },
-    { icon: <GitHubIcon className="w-5 h-5" />, href: "#", label: "GitHub" },
+    { icon: <FaGithub className="w-5 h-5" />, href: "#", label: "GitHub" },
     {
-      icon: <InstagramIcon className="w-5 h-5" />,
+      icon: <FaInstagram className="w-5 h-5" />,
       href: "#",
       label: "Instagram",
     },
