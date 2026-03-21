@@ -42,8 +42,8 @@ export default function QuickActions() {
     },
     {
       icon: <DocumentTextIcon className="w-6 h-6" />,
-      label: "View Contracts",
-      description: "Manage project agreements",
+      label: "Requirement History",
+      description: "Manage part projects",
       href: "/dashboard/contracts",
       primary: false,
     },
