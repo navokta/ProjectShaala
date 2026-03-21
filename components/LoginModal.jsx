@@ -183,15 +183,16 @@ const LoginModal = () => {
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => console.log('Google login')}
+                  onClick={() => (window.location.href = '/api/auth/google')}
                 >
                   <FaGoogle className="h-5 w-5 mr-2" />
                   Google
                 </button>
+
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => console.log('GitHub login')}
+                  onClick={() => (window.location.href = '/api/auth/github')}
                 >
                   <FaGithub className="h-5 w-5 mr-2" />
                   GitHub
