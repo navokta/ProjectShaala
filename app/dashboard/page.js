@@ -56,12 +56,12 @@ export default function DashboardPage() {
         <DashboardHeader user={user} />
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-8">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
           {/* Stats Grid */}
           <StatsGrid stats={stats} />
 
           {/* Quick Actions + Profile Completion */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 mt-4">
             <div className="lg:col-span-3">
               <QuickActions />
             </div>
