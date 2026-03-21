@@ -2,12 +2,7 @@
 "use client";
 
 export default function ProfileCompletion({ percentage }) {
-  const steps = [
-    { label: "Basic Info", done: true },
-    { label: "Profile Photo", done: true },
-    { label: "Payment Method", done: percentage >= 75 },
-    { label: "Verification", done: false },
-  ];
+  const steps = [{ label: "Basic Info", done: true }];
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6">
@@ -72,7 +67,7 @@ export default function ProfileCompletion({ percentage }) {
       {/* CTA */}
       {percentage < 100 && (
         <a
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           className="block mt-5 py-2.5 text-center text-sm font-poppins font-semibold text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Complete Profile →
