@@ -47,8 +47,13 @@ const LoginModal = () => {
 
     setIsLoading(true);
     try {
-      await login(formData.identifier, formData.password);
-      router.push('/');
+      const user = await login(formData.identifier, formData.password);
+      // Redirect based on role
+      if (user.role === 'admin' || user.role === 'owner') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     } catch (error) {
       setErrors({ form: error.message });
     } finally {
