@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Link from 'next/link';
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Link from "next/link";
 import {
   UserIcon,
   PhoneIcon,
@@ -16,20 +16,20 @@ import {
   ArrowRightOnRectangleIcon,
   EyeIcon,
   EyeSlashIcon,
-} from '@heroicons/react/24/solid';
-import { FaGoogle, FaGithub } from 'react-icons/fa';
+} from "@heroicons/react/24/solid";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const SignupModal = () => {
   const router = useRouter();
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    password: '',
-    username: '',
-    address: '',
-    headline: '',
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    username: "",
+    address: "",
+    headline: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,26 +38,31 @@ const SignupModal = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!emailRegex.test(formData.email)) newErrors.email = 'Enter a valid email address';
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!emailRegex.test(formData.email))
+      newErrors.email = "Enter a valid email address";
     if (formData.phone.trim()) {
-      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
-      if (!phoneRegex.test(formData.phone)) newErrors.phone = 'Enter a valid phone number';
+      const phoneRegex =
+        /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
+      if (!phoneRegex.test(formData.phone))
+        newErrors.phone = "Enter a valid phone number";
     }
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!formData.username.trim()) newErrors.username = 'Username is required';
+    if (!formData.username.trim()) newErrors.username = "Username is required";
     else if (!usernameRegex.test(formData.username)) {
-      newErrors.username = 'Username must be 3-20 characters (letters, numbers, underscore)';
+      newErrors.username =
+        "Username must be 3-20 characters (letters, numbers, underscore)";
     }
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     return newErrors;
   };
 
@@ -70,7 +75,7 @@ const SignupModal = () => {
     setIsLoading(true);
     try {
       await signup(formData);
-      router.push('/');
+      router.push("/");
     } catch (error) {
       setErrors({ form: error.message });
     } finally {
@@ -80,8 +85,9 @@ const SignupModal = () => {
 
   const handleBlur = (field) => {
     const validationErrors = validateForm();
-    if (validationErrors[field]) setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
-    else setErrors((prev) => ({ ...prev, [field]: '' }));
+    if (validationErrors[field])
+      setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
+    else setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   return (
@@ -124,13 +130,15 @@ const SignupModal = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('name')}
+                        onBlur={() => handleBlur("name")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="John Doe"
                       />
                     </div>
                     {errors.name && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.name}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.name}
+                      </p>
                     )}
                   </div>
 
@@ -148,20 +156,23 @@ const SignupModal = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('email')}
+                        onBlur={() => handleBlur("email")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="you@company.com"
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.email}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
                   {/* Phone (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Phone <span className="text-gray-500 text-xs">(optional)</span>
+                      Phone{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -172,13 +183,15 @@ const SignupModal = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('phone')}
+                        onBlur={() => handleBlur("phone")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.phone}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.phone}
+                      </p>
                     )}
                   </div>
 
@@ -196,13 +209,15 @@ const SignupModal = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('username')}
+                        onBlur={() => handleBlur("username")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="johndoe"
                       />
                     </div>
                     {errors.username && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.username}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.username}
+                      </p>
                     )}
                   </div>
 
@@ -216,11 +231,11 @@ const SignupModal = () => {
                         <LockClosedIcon className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('password')}
+                        onBlur={() => handleBlur("password")}
                         className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="••••••••"
                       />
@@ -237,14 +252,17 @@ const SignupModal = () => {
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.password}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.password}
+                      </p>
                     )}
                   </div>
 
                   {/* Address (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Address <span className="text-gray-500 text-xs">(optional)</span>
+                      Address{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -264,7 +282,8 @@ const SignupModal = () => {
                   {/* Headline (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Headline <span className="text-gray-500 text-xs">(optional)</span>
+                      Headline{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -303,7 +322,9 @@ const SignupModal = () => {
 
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
+                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">
+                  or continue with
+                </span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
@@ -311,7 +332,7 @@ const SignupModal = () => {
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => (window.location.href = '/api/auth/google')}
+                  onClick={() => (window.location.href = "/api/auth/google")}
                 >
                   <FaGoogle className="h-5 w-5 mr-2" />
                   Google
@@ -320,7 +341,7 @@ const SignupModal = () => {
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => (window.location.href = '/api/auth/github')}
+                  onClick={() => (window.location.href = "/api/auth/github")}
                 >
                   <FaGithub className="h-5 w-5 mr-2" />
                   GitHub
@@ -328,15 +349,20 @@ const SignupModal = () => {
               </div>
 
               <p className="text-center text-xs text-gray-500 font-sans">
-                Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-gray-900 hover:underline">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-semibold text-gray-900 hover:underline"
+                >
                   Log in
                 </Link>
               </p>
             </div>
           </div>
           <div className="text-center mt-6">
-            <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
+            <p className="text-gray-400 text-xs font-sans">
+              Secure • Professional • Minimal
+            </p>
           </div>
         </div>
       </div>
