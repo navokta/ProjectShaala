@@ -15,6 +15,12 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await fetch('/api/auth/me');
+        if (res.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem('user');
+          setUser(null);
+          return;
+        }
         const data = await res.json();
         setUser(data.user);
       } catch (error) {
@@ -23,25 +29,20 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, []);
 
+  // In context/AuthContext.jsx
   const login = async (identifier, password) => {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, password }),
     });
-
     const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || 'Login failed');
-    }
-
+    if (!res.ok) throw new Error(data.error);
     setUser(data.user);
-    return data.user;
+    return data.user; // <-- add this line
   };
 
   const signup = async (userData) => {
