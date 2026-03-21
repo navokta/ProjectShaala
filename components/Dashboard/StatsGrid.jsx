@@ -13,60 +13,40 @@ import {
 export default function StatsGrid({ stats }) {
   const statCards = [
     {
-      label: "Total Projects",
+      label: "Total Listed Requirements",
       value: stats.totalProjects,
       icon: <FolderIcon className="w-6 h-6" />,
-      trend: "+3 this month",
-      trendUp: true,
       color: "bg-blue-50 text-blue-600",
     },
     {
       label: "Total Spend",
       value: `₹${stats.totalSpend.toLocaleString("en-IN")}`,
       icon: <CurrencyRupeeIcon className="w-6 h-6" />,
-      trend: "Within budget",
-      trendUp: true,
       color: "bg-emerald-50 text-emerald-600",
     },
     {
       label: "Active Projects",
       value: stats.activeProjects,
       icon: <ClockIcon className="w-6 h-6" />,
-      trend: "2 due this week",
-      trendUp: false,
       color: "bg-amber-50 text-amber-600",
     },
     {
       label: "Completed",
       value: stats.completedProjects,
       icon: <CheckCircleIcon className="w-6 h-6" />,
-      trend: "98% satisfaction",
-      trendUp: true,
+
       color: "bg-purple-50 text-purple-600",
     },
     {
       label: "Pending Bids",
       value: stats.pendingBids,
       icon: <ArrowTrendingUpIcon className="w-6 h-6" />,
-      trend: "Review now",
-      trendUp: null,
       color: "bg-gray-50 text-gray-600",
-    },
-    {
-      label: "Unread Messages",
-      value: stats.messages,
-      icon: <ChatBubbleLeftIcon className="w-6 h-6" />,
-      trend: stats.messages > 0 ? "Reply soon" : "All caught up!",
-      trendUp: stats.messages === 0,
-      color:
-        stats.messages > 0
-          ? "bg-red-50 text-red-600"
-          : "bg-gray-50 text-gray-600",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {statCards.map((stat, index) => (
         <div
           key={index}
