@@ -1,3 +1,4 @@
+// components/Auth/SignupModal.jsx
 "use client";
 
 import { useState } from "react";
@@ -16,12 +17,16 @@ import {
   ArrowRightOnRectangleIcon,
   EyeIcon,
   EyeSlashIcon,
+  CheckCircleIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/solid";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const SignupModal = () => {
   const router = useRouter();
   const { signup } = useAuth();
+
+  // Form States
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -34,6 +39,11 @@ const SignupModal = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // ✅ Verification States (NEW)
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,6 +76,58 @@ const SignupModal = () => {
     return newErrors;
   };
 
+  // ✅ NEW: Send Verification Email Function
+  const sendVerificationEmail = async (email) => {
+    try {
+      console.log("📤 Sending verification email to:", email);
+      const response = await fetch("/api/auth/send-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send verification email");
+      }
+
+      console.log("✅ Verification email sent:", data.message);
+      return { success: true, message: data.message };
+    } catch (error) {
+      console.error("❌ Verification email error:", error);
+      throw error;
+    }
+  };
+
+  // ✅ NEW: Handle Resend Verification
+  const handleResendVerification = async () => {
+    if (!formData.email && !verificationSent) return;
+
+    setIsResending(true);
+    setVerificationMessage("");
+
+    try {
+      const emailToSend =
+        formData.email ||
+        JSON.parse(localStorage.getItem("lastSignupEmail") || "null");
+
+      if (!emailToSend) {
+        throw new Error("Email not found. Please sign up again.");
+      }
+
+      await sendVerificationEmail(emailToSend);
+      setVerificationMessage("✅ Verification email resent! Check your inbox.");
+
+      // Auto-clear message after 5 seconds
+      setTimeout(() => setVerificationMessage(""), 5000);
+    } catch (error) {
+      setVerificationMessage(`❌ ${error.message}`);
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
@@ -74,10 +136,23 @@ const SignupModal = () => {
 
     setIsLoading(true);
     try {
-      await signup(formData);
-      router.push("/");
+      // 1. Create user account
+      const userData = await signup(formData);
+      console.log("✅ User created:", userData);
+
+      // 2. Save email for resend functionality
+      localStorage.setItem("lastSignupEmail", JSON.stringify(formData.email));
+
+      // 3. ✅ Send verification email
+      await sendVerificationEmail(formData.email);
+
+      // 4. Show verification screen instead of redirecting
+      setVerificationSent(true);
     } catch (error) {
-      setErrors({ form: error.message });
+      console.error("❌ Signup error:", error);
+      setErrors({
+        form: error.message || "Something went wrong. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -90,6 +165,98 @@ const SignupModal = () => {
     else setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  // ✅ NEW: Verification Email Sent Screen
+  if (verificationSent) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen pt-16 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div className="max-w-md w-full">
+            <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 text-center">
+              {/* Success Icon */}
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircleIcon className="w-12 h-12 text-emerald-600" />
+              </div>
+
+              {/* Heading */}
+              <h1 className="font-poppins text-2xl font-bold text-gray-900 mb-3">
+                Check Your Email 📧
+              </h1>
+
+              <p className="font-sans text-gray-600 mb-6">
+                We've sent a verification link to
+              </p>
+
+              {/* Email Display */}
+              <div className="inline-flex items-center gap-2 px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl mb-6">
+                <EnvelopeIcon className="w-5 h-5 text-gray-400" />
+                <span className="font-sans text-sm font-medium text-gray-900">
+                  {formData.email}
+                </span>
+              </div>
+
+              {/* Instructions */}
+              <div className="text-left p-5 bg-gray-50 border border-gray-200 rounded-xl mb-6">
+                <p className="font-sans text-sm font-semibold text-gray-800 mb-3">
+                  <strong>Next Steps:</strong>
+                </p>
+                <ol className="font-sans text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                  <li>Open the email from ProjectShaala</li>
+                  <li>Click on the "Verify Email Address" button</li>
+                  <li>You'll be redirected to confirm your account</li>
+                  <li>Start using ProjectShaala instantly!</li>
+                </ol>
+              </div>
+
+              {/* Message Display */}
+              {verificationMessage && (
+                <div
+                  className={`mb-4 p-3 rounded-xl text-sm font-sans ${
+                    verificationMessage.includes("✅")
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
+                >
+                  {verificationMessage}
+                </div>
+              )}
+
+              {/* Resend Button */}
+              <button
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="inline-flex items-center gap-2 px-6 py-3 text-gray-700 font-poppins font-medium text-sm hover:text-gray-900 transition-colors disabled:opacity-50"
+              >
+                <ArrowPathIcon
+                  className={`w-4 h-4 ${isResending ? "animate-spin" : ""}`}
+                />
+                {isResending ? "Sending..." : "Didn't receive email? Resend"}
+              </button>
+
+              {/* Security Note */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="font-sans text-xs text-gray-500">
+                  🔒 For security, this link will expire in 24 hours.
+                </p>
+              </div>
+
+              {/* Back to Login */}
+              <div className="mt-6">
+                <Link
+                  href="/login"
+                  className="font-sans text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  ← Already have an account? Log in
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Original Signup Form (unchanged structure, just wrapped in <> </>)
   return (
     <>
       <Header />
