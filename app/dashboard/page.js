@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import StatsGrid from "@/components/Dashboard/StatsGrid";
@@ -49,7 +49,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <Header userType="buyer" isDashboard={true} />
+      {/* <Header userType="buyer" isDashboard={true} /> */}
 
       <main className="min-h-screen bg-gray-50">
         {/* Dashboard Header */}
