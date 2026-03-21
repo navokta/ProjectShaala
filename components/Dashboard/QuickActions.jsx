@@ -15,8 +15,8 @@ export default function QuickActions() {
     {
       icon: <PlusIcon className="w-6 h-6" />,
       label: "Post New Project",
-      description: "Create a new project and get bids",
-      href: "/dashboard/projects/new",
+      description: "Create a new requirements and get bids",
+      href: "/dashboard/bids/create",
       primary: true,
     },
     {
