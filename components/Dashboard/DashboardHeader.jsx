@@ -14,7 +14,7 @@ export default function DashboardHeader({ user }) {
               Welcome back, {user.name.split(" ")[0]}! 👋
             </h1>
             <p className="font-sans text-gray-600 mt-1">
-              Here's what's happening with your projects today.
+              Here's what's happening with your dashboard today.
             </p>
           </div>
 
