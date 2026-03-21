@@ -2,14 +2,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { 
+  Bars3Icon, 
+  XMarkIcon, 
+  EnvelopeIcon, 
+  BellIcon,
+  ShieldCheckIcon   // icon for admin link
+} from '@heroicons/react/24/outline';
 import Logo from './Logo';
 import NavLinks from './NavLinks';
 import SearchBar from './SearchBar';
 import UserActions from './UserActions';
 import MobileMenu from './MobileMenu';
 
-const LoggedInHeader = ({ userType }) => {
+const LoggedInHeader = ({ userType, role }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -22,6 +29,9 @@ const LoggedInHeader = ({ userType }) => {
   } else if (userType === 'developer') {
     navLinks.push({ name: 'Browse Projects', href: '/developer/projects' });
   }
+
+  // Determine if we should show admin link (admin or owner)
+  const showAdminLink = role === 'admin' || role === 'owner';
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
@@ -38,6 +48,18 @@ const LoggedInHeader = ({ userType }) => {
           {/* Desktop Right side */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             <SearchBar withFilter={true} />
+
+            {/* Admin link (visible only for admin/owner) */}
+            {showAdminLink && (
+              <Link
+                href="/admin"
+                className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:bg-gray-900 hover:text-white px-3 py-2 rounded-md transition"
+              >
+                <ShieldCheckIcon className="h-5 w-5" />
+                <span>Admin</span>
+              </Link>
+            )}
+
             <UserActions userType={userType} />
           </div>
 
@@ -81,6 +103,17 @@ const LoggedInHeader = ({ userType }) => {
           </div>
           <div className="border-t border-gray-200 pt-4 pb-3">
             <div className="px-2 space-y-1">
+              {/* Admin link in mobile menu (visible only for admin/owner) */}
+              {showAdminLink && (
+                <Link
+                  href="/admin"
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <ShieldCheckIcon className="h-5 w-5" />
+                  <span>Admin Dashboard</span>
+                </Link>
+              )}
               <Link
                 href="/profile"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
@@ -111,9 +144,5 @@ const LoggedInHeader = ({ userType }) => {
     </header>
   );
 };
-
-// Don't forget imports
-import Link from 'next/link';
-import { EnvelopeIcon, BellIcon } from '@heroicons/react/24/outline';
 
 export default LoggedInHeader;
