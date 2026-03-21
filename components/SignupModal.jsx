@@ -1,10 +1,11 @@
-'use client';
+// components/Auth/SignupModal.jsx
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Link from 'next/link';
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Link from "next/link";
 import {
   UserIcon,
   PhoneIcon,
@@ -16,49 +17,115 @@ import {
   ArrowRightOnRectangleIcon,
   EyeIcon,
   EyeSlashIcon,
-} from '@heroicons/react/24/solid';
-import { FaGoogle, FaGithub } from 'react-icons/fa';
+  CheckCircleIcon,
+  ArrowPathIcon,
+} from "@heroicons/react/24/solid";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const SignupModal = () => {
   const router = useRouter();
   const { signup } = useAuth();
+
+  // Form States
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    password: '',
-    username: '',
-    address: '',
-    headline: '',
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    username: "",
+    address: "",
+    headline: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // ✅ Verification States (NEW)
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!emailRegex.test(formData.email)) newErrors.email = 'Enter a valid email address';
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!emailRegex.test(formData.email))
+      newErrors.email = "Enter a valid email address";
     if (formData.phone.trim()) {
-      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
-      if (!phoneRegex.test(formData.phone)) newErrors.phone = 'Enter a valid phone number';
+      const phoneRegex =
+        /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
+      if (!phoneRegex.test(formData.phone))
+        newErrors.phone = "Enter a valid phone number";
     }
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!formData.username.trim()) newErrors.username = 'Username is required';
+    if (!formData.username.trim()) newErrors.username = "Username is required";
     else if (!usernameRegex.test(formData.username)) {
-      newErrors.username = 'Username must be 3-20 characters (letters, numbers, underscore)';
+      newErrors.username =
+        "Username must be 3-20 characters (letters, numbers, underscore)";
     }
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     return newErrors;
+  };
+
+  // ✅ NEW: Send Verification Email Function
+  const sendVerificationEmail = async (email) => {
+    try {
+      console.log("📤 Sending verification email to:", email);
+      const response = await fetch("/api/auth/send-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send verification email");
+      }
+
+      console.log("✅ Verification email sent:", data.message);
+      return { success: true, message: data.message };
+    } catch (error) {
+      console.error("❌ Verification email error:", error);
+      throw error;
+    }
+  };
+
+  // ✅ NEW: Handle Resend Verification
+  const handleResendVerification = async () => {
+    if (!formData.email && !verificationSent) return;
+
+    setIsResending(true);
+    setVerificationMessage("");
+
+    try {
+      const emailToSend =
+        formData.email ||
+        JSON.parse(localStorage.getItem("lastSignupEmail") || "null");
+
+      if (!emailToSend) {
+        throw new Error("Email not found. Please sign up again.");
+      }
+
+      await sendVerificationEmail(emailToSend);
+      setVerificationMessage("✅ Verification email resent! Check your inbox.");
+
+      // Auto-clear message after 5 seconds
+      setTimeout(() => setVerificationMessage(""), 5000);
+    } catch (error) {
+      setVerificationMessage(`❌ ${error.message}`);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -69,10 +136,23 @@ const SignupModal = () => {
 
     setIsLoading(true);
     try {
-      await signup(formData);
-      router.push('/');
+      // 1. Create user account
+      const userData = await signup(formData);
+      console.log("✅ User created:", userData);
+
+      // 2. Save email for resend functionality
+      localStorage.setItem("lastSignupEmail", JSON.stringify(formData.email));
+
+      // 3. ✅ Send verification email
+      await sendVerificationEmail(formData.email);
+
+      // 4. Show verification screen instead of redirecting
+      setVerificationSent(true);
     } catch (error) {
-      setErrors({ form: error.message });
+      console.error("❌ Signup error:", error);
+      setErrors({
+        form: error.message || "Something went wrong. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +160,103 @@ const SignupModal = () => {
 
   const handleBlur = (field) => {
     const validationErrors = validateForm();
-    if (validationErrors[field]) setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
-    else setErrors((prev) => ({ ...prev, [field]: '' }));
+    if (validationErrors[field])
+      setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
+    else setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  // ✅ NEW: Verification Email Sent Screen
+  if (verificationSent) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen pt-16 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div className="max-w-md w-full">
+            <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 text-center">
+              {/* Success Icon */}
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircleIcon className="w-12 h-12 text-emerald-600" />
+              </div>
+
+              {/* Heading */}
+              <h1 className="font-poppins text-2xl font-bold text-gray-900 mb-3">
+                Check Your Email 📧
+              </h1>
+
+              <p className="font-sans text-gray-600 mb-6">
+                We've sent a verification link to
+              </p>
+
+              {/* Email Display */}
+              <div className="inline-flex items-center gap-2 px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl mb-6">
+                <EnvelopeIcon className="w-5 h-5 text-gray-400" />
+                <span className="font-sans text-sm font-medium text-gray-900">
+                  {formData.email}
+                </span>
+              </div>
+
+              {/* Instructions */}
+              <div className="text-left p-5 bg-gray-50 border border-gray-200 rounded-xl mb-6">
+                <p className="font-sans text-sm font-semibold text-gray-800 mb-3">
+                  <strong>Next Steps:</strong>
+                </p>
+                <ol className="font-sans text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                  <li>Open the email from ProjectShaala</li>
+                  <li>Click on the "Verify Email Address" button</li>
+                  <li>You'll be redirected to confirm your account</li>
+                  <li>Start using ProjectShaala instantly!</li>
+                </ol>
+              </div>
+
+              {/* Message Display */}
+              {verificationMessage && (
+                <div
+                  className={`mb-4 p-3 rounded-xl text-sm font-sans ${
+                    verificationMessage.includes("✅")
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
+                >
+                  {verificationMessage}
+                </div>
+              )}
+
+              {/* Resend Button */}
+              <button
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="inline-flex items-center gap-2 px-6 py-3 text-gray-700 font-poppins font-medium text-sm hover:text-gray-900 transition-colors disabled:opacity-50"
+              >
+                <ArrowPathIcon
+                  className={`w-4 h-4 ${isResending ? "animate-spin" : ""}`}
+                />
+                {isResending ? "Sending..." : "Didn't receive email? Resend"}
+              </button>
+
+              {/* Security Note */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="font-sans text-xs text-gray-500">
+                  🔒 For security, this link will expire in 24 hours.
+                </p>
+              </div>
+
+              {/* Back to Login */}
+              <div className="mt-6">
+                <Link
+                  href="/login"
+                  className="font-sans text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  ← Already have an account? Log in
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Original Signup Form (unchanged structure, just wrapped in <> </>)
   return (
     <>
       <Header />
@@ -124,13 +297,15 @@ const SignupModal = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('name')}
+                        onBlur={() => handleBlur("name")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="John Doe"
                       />
                     </div>
                     {errors.name && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.name}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.name}
+                      </p>
                     )}
                   </div>
 
@@ -148,20 +323,23 @@ const SignupModal = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('email')}
+                        onBlur={() => handleBlur("email")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="you@company.com"
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.email}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
                   {/* Phone (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Phone <span className="text-gray-500 text-xs">(optional)</span>
+                      Phone{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -172,13 +350,15 @@ const SignupModal = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('phone')}
+                        onBlur={() => handleBlur("phone")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.phone}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.phone}
+                      </p>
                     )}
                   </div>
 
@@ -196,13 +376,15 @@ const SignupModal = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('username')}
+                        onBlur={() => handleBlur("username")}
                         className="block w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="johndoe"
                       />
                     </div>
                     {errors.username && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.username}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.username}
+                      </p>
                     )}
                   </div>
 
@@ -216,11 +398,11 @@ const SignupModal = () => {
                         <LockClosedIcon className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        onBlur={() => handleBlur('password')}
+                        onBlur={() => handleBlur("password")}
                         className="block w-full pl-12 pr-14 py-4 rounded-2xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition text-sm shadow-sm font-sans"
                         placeholder="••••••••"
                       />
@@ -237,14 +419,17 @@ const SignupModal = () => {
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-1 text-xs text-red-600 font-sans">{errors.password}</p>
+                      <p className="mt-1 text-xs text-red-600 font-sans">
+                        {errors.password}
+                      </p>
                     )}
                   </div>
 
                   {/* Address (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Address <span className="text-gray-500 text-xs">(optional)</span>
+                      Address{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -264,7 +449,8 @@ const SignupModal = () => {
                   {/* Headline (optional) */}
                   <div>
                     <label className="block font-sans text-sm font-medium text-gray-700 mb-2">
-                      Headline <span className="text-gray-500 text-xs">(optional)</span>
+                      Headline{" "}
+                      <span className="text-gray-500 text-xs">(optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -303,7 +489,9 @@ const SignupModal = () => {
 
               <div className="my-8 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">or continue with</span>
+                <span className="px-4 text-xs text-gray-500 uppercase tracking-wider font-sans">
+                  or continue with
+                </span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
@@ -311,7 +499,7 @@ const SignupModal = () => {
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => (window.location.href = '/api/auth/google')}
+                  onClick={() => (window.location.href = "/api/auth/google")}
                 >
                   <FaGoogle className="h-5 w-5 mr-2" />
                   Google
@@ -320,7 +508,7 @@ const SignupModal = () => {
                 <button
                   type="button"
                   className="flex items-center justify-center py-3 px-4 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-all duration-300 font-sans"
-                  onClick={() => (window.location.href = '/api/auth/github')}
+                  onClick={() => (window.location.href = "/api/auth/github")}
                 >
                   <FaGithub className="h-5 w-5 mr-2" />
                   GitHub
@@ -328,15 +516,20 @@ const SignupModal = () => {
               </div>
 
               <p className="text-center text-xs text-gray-500 font-sans">
-                Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-gray-900 hover:underline">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-semibold text-gray-900 hover:underline"
+                >
                   Log in
                 </Link>
               </p>
             </div>
           </div>
           <div className="text-center mt-6">
-            <p className="text-gray-400 text-xs font-sans">Secure • Professional • Minimal</p>
+            <p className="text-gray-400 text-xs font-sans">
+              Secure • Professional • Minimal
+            </p>
           </div>
         </div>
       </div>
