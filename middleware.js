@@ -6,10 +6,18 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Public paths
-  if (pathname === '/' || pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/api/auth') || pathname.startsWith('/_next') || pathname.startsWith('/favicon.ico')) {
+  if (
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon.ico')
+  ) {
     return NextResponse.next();
   }
 
+  // Protect dashboard and developer routes (but not admin routes)
   if (!token) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -19,11 +27,10 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // For admin/owner routes, we need to check role. We'll do that in the layout/page itself.
-  // But we can add a basic check here if we want.
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*', '/dashboard/:path*', '/developer/:path*'],
+  // Removed '/admin/:path*' – admin routes are now protected by the layout
+  matcher: ['/api/admin/:path*', '/dashboard/:path*', '/developer/:path*'],
 };
