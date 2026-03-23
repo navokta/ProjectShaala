@@ -48,6 +48,7 @@ export default function ApplicationsPage() {
                   <h3 className="font-semibold text-lg">{app.name}</h3>
                   <p className="text-gray-500">@{app.username}</p>
                   <p className="text-gray-600 mt-2">{app.email}</p>
+                  <p className="text-gray-600">{app.phone}</p>
                   <div className="mt-2 space-y-1">
                     <p><span className="font-medium">GitHub:</span> <a href={app.developerApplication.githubProfile} target="_blank" className="text-blue-600 hover:underline">{app.developerApplication.githubProfile}</a></p>
                     <p><span className="font-medium">Portfolio:</span> <a href={app.developerApplication.portfolioLink} target="_blank" className="text-blue-600 hover:underline">{app.developerApplication.portfolioLink}</a></p>

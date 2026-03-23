@@ -39,6 +39,12 @@ const ApplyDeveloperForm = () => {
     setSuccess('');
     setLoading(true);
 
+    // Check if user has phone number
+  if (!user.phone) {
+    setError('You must add your phone number to your profile before applying to become a developer. Please go to your profile settings and add your phone number.');
+    return;
+  }
+
     // Filter out empty project URLs
     const projects = formData.topProjects.filter(p => p.trim() !== '');
 

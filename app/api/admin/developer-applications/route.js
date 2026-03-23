@@ -17,7 +17,7 @@ export async function GET(request) {
     await connectToDatabase();
     const applications = await User.find(
       { 'developerApplication.status': 'pending' },
-      'name email username developerApplication createdAt'
+      'name email username phone developerApplication createdAt' // add phone
     ).sort({ 'developerApplication.submittedAt': -1 });
 
     return NextResponse.json(applications);
