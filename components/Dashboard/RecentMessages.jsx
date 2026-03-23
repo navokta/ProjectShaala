@@ -7,7 +7,7 @@ export default function RecentMessages({ count }) {
   const messages = [
     {
       id: 1,
-      from: "Rahul Verma",
+      from: "Bhavy Sharma",
       avatar: "https://placehold.co/40/111827/ffffff?text=RV",
       preview: "Hi! I've completed the dashboard module. Please review...",
       time: "2m ago",
