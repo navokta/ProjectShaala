@@ -11,8 +11,8 @@ import BidsHistory from "@/components/DevDashboard/BidsHistory";
 import ActiveProjects from "@/components/DevDashboard/ActiveProjects";
 import AvailabilityToggle from "@/components/DevDashboard/AvailabilityToggle";
 import SkillsSection from "@/components/DevDashboard/SkillsSection";
-import RecentMessages from "@/components/DevDashboard/RecentMessages";
-import DeveloperActivityFeed from "@/components/DevDashboard/DeveloperActivityFeed";
+// import RecentMessages from "@/components/DevDashboard/RecentMessages";
+// import DeveloperActivityFeed from "@/components/DevDashboard/DeveloperActivityFeed";
 
 export default function DeveloperDashboard() {
   const [developer, setDeveloper] = useState(null);
@@ -205,7 +205,7 @@ export default function DeveloperDashboard() {
           <DeveloperStatsGrid stats={stats} />
 
           {/* Top Row: Earnings + Availability */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-4">
             <div className="lg:col-span-3">
               <EarningsOverview
                 pending={28500}
@@ -213,35 +213,35 @@ export default function DeveloperDashboard() {
                 total={stats.totalEarnings}
               />
             </div>
-            <div className="lg:col-span-1">
+            {/* <div className="lg:col-span-1">
               <AvailabilityToggle
                 isAvailable={developer.availability}
                 onToggle={toggleAvailability}
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Main Grid: Active Projects + Bids */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
             <ActiveProjects projects={activeProjects} />
-            <BidsHistory bids={bids} />
+            {/* <BidsHistory bids={bids} /> */}
           </div>
 
           {/* Secondary Grid: Skills + Messages */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-4">
               <SkillsSection
                 skills={skills}
                 onSkillUpdate={handleSkillUpdate}
               />
             </div>
-            <div className="lg:col-span-1">
+            {/* <div className="lg:col-span-1">
               <RecentMessages count={stats.messages} />
-            </div>
+            </div> */}
           </div>
 
           {/* Activity Feed */}
-          <DeveloperActivityFeed activities={activities} />
+          {/* <DeveloperActivityFeed activities={activities} /> */}
         </main>
 
         <Footer />
