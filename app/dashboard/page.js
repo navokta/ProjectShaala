@@ -81,26 +81,29 @@ export default function DashboardPage() {
 
             {/* Main Grid: Projects + Messages + Budget */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
+              {/* <div className="lg:col-span-2">
                 <RecentProjects />
-              </div>
+              </div> */}
               <div className="lg:col-span-1">
                 <BudgetOverview spent={stats.totalSpend} budget={100000} />
+              </div>
+
+              <div className="lg:col-span-2">
+                <DeveloperSuggestions />
               </div>
             </div>
 
             {/* Secondary Grid: Messages + Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-1">
                 <RecentMessages count={stats.messages} />
               </div>
               <div className="lg:col-span-2">
                 <ActivityFeed />
               </div>
-            </div>
+            </div> */}
 
             {/* Developer Suggestions */}
-            <DeveloperSuggestions />
           </main>
 
           <Footer />
