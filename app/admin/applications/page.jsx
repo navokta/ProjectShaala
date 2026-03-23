@@ -35,7 +35,7 @@ export default function ApplicationsPage() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div className='text-black bg-white'>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Developer Applications</h1>
       {applications.length === 0 ? (
         <p className="text-gray-500">No pending applications.</p>

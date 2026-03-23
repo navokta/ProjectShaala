@@ -25,7 +25,7 @@ export default function AdminUsers() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div className='text-black bg-white p-6 rounded-lg shadow-md'>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Users Management</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
