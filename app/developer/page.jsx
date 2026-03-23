@@ -143,8 +143,8 @@ export default function DeveloperDashboard() {
   useEffect(() => {
     // Mock developer data — replace with API call to /api/developers/me
     setDeveloper({
-      name: "Rahul Verma",
-      email: "rahul.dev@example.com",
+      name: "Bhavy Sharma",
+      email: "bhavymay18@gmail.com",
       avatar: "https://placehold.co/100/111827/ffffff?text=RV",
       role: "developer",
       title: "Full-Stack Developer",
