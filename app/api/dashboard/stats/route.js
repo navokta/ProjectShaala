@@ -42,6 +42,8 @@ export async function GET(request) {
       id: user._id,
       name: user.name,
       email: user.email,
+      username: user.username,   // ✅ add this
+      phone: user.phone,         // ✅ add this
       avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=111827&color=fff`,
       role: user.role,
       profileComplete,
