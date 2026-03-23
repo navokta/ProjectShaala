@@ -18,20 +18,6 @@ const mockMessages = [
     time: "1h ago",
     unread: false,
   },
-  {
-    id: 3,
-    from: "PayFast India",
-    preview: "Payment has been processed for...",
-    time: "3h ago",
-    unread: true,
-  },
-  {
-    id: 4,
-    from: "CloudManage",
-    preview: "When can we schedule the demo?",
-    time: "1d ago",
-    unread: false,
-  },
 ];
 
 export default function RecentMessages({ count = 4 }) {
