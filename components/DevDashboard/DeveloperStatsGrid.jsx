@@ -33,13 +33,6 @@ const statCards = [
     bg: "bg-purple-50",
   },
   {
-    label: "Avg Rating",
-    value: "4.9★",
-    icon: StarIcon,
-    color: "text-yellow-600",
-    bg: "bg-yellow-50",
-  },
-  {
     label: "Profile Views",
     value: "342",
     icon: EyeIcon,
@@ -57,7 +50,7 @@ const statCards = [
 
 export default function DeveloperStatsGrid({ stats }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-4">
       {statCards.map((stat, index) => (
         <div
           key={index}
