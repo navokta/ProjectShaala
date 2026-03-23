@@ -3,9 +3,10 @@ import { getCurrentUser } from '@/lib/utils/auth';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/lib/models/User';
 
+// GET: Search for a user by email (owner only)
 export async function GET(request) {
   const user = await getCurrentUser(request);
-  if (!user || (user.role !== 'owner')) {
+  if (!user || user.role !== 'owner') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -13,13 +14,15 @@ export async function GET(request) {
   const email = searchParams.get('email');
 
   if (!email) {
-    return NextResponse.json({ error: 'Email required' }, { status: 400 });
+    return NextResponse.json({ error: 'Email query parameter required' }, { status: 400 });
   }
 
   await connectToDatabase();
-  const foundUser = await User.findOne({ email }).select('name email username role _id');
+  const foundUser = await User.findOne({ email: email.toLowerCase() }).select('name email username role _id');
+
   if (!foundUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
+
   return NextResponse.json(foundUser);
 }
