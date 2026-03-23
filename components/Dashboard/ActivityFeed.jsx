@@ -8,7 +8,7 @@ export default function ActivityFeed() {
       type: "project_update",
       icon: "🔄",
       title: "E-Commerce Dashboard",
-      description: "Rahul uploaded new screenshots for review",
+      description: "Bhavy uploaded new screenshots for review",
       time: "2 hours ago",
     },
     {
