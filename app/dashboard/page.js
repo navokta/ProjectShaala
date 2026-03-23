@@ -2,9 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import Sidebar from "@/components/Dashboard/Sidebar"; // ✅ New import
 import StatsGrid from "@/components/Dashboard/StatsGrid";
 import QuickActions from "@/components/Dashboard/QuickActions";
 import RecentProjects from "@/components/Dashboard/RecentProjects";
@@ -36,6 +36,12 @@ export default function DashboardPage() {
     });
   }, []);
 
+  const handleLogout = () => {
+    // Clear auth tokens, redirect to login
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -49,59 +55,57 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* <Header userType="buyer" isDashboard={true} /> */}
+      <div className="min-h-screen bg-gray-50 flex font-inter">
+        {/* ✅ Sidebar */}
+        <Sidebar user={user} onLogout={handleLogout} />
 
-      <main className="min-h-screen bg-gray-50">
-        {/* Dashboard Header */}
-        <DashboardHeader user={user} />
+        {/* Main Content Wrapper */}
+        <div className="flex-1 lg:ml-0">
+          {/* Dashboard Header - now inside main flow */}
+          <DashboardHeader user={user} />
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
-          {/* Stats Grid */}
-          <StatsGrid stats={stats} />
+          {/* Page Content */}
+          <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
+            {/* Stats Grid */}
+            <StatsGrid stats={stats} />
 
-          {/* Quick Actions + Profile Completion */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 mt-4">
-            <div className="lg:col-span-3">
-              <QuickActions />
-            </div>
-            <div className="lg:col-span-1">
-              <ProfileCompletion percentage={user.profileComplete} />
-            </div>
-          </div>
-
-          {/* Main Grid: Projects + Messages + Budget */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Recent Projects (2/3 width) */}
-            <div className="lg:col-span-2">
-              <RecentProjects />
+            {/* Quick Actions + Profile Completion */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 mt-4">
+              <div className="lg:col-span-3">
+                <QuickActions />
+              </div>
+              <div className="lg:col-span-1">
+                <ProfileCompletion percentage={user.profileComplete} />
+              </div>
             </div>
 
-            {/* Budget Overview (1/3 width) */}
-            <div className="lg:col-span-1">
-              <BudgetOverview spent={stats.totalSpend} budget={100000} />
-            </div>
-          </div>
-
-          {/* Secondary Grid: Messages + Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Recent Messages */}
-            <div className="lg:col-span-1">
-              <RecentMessages count={stats.messages} />
+            {/* Main Grid: Projects + Messages + Budget */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-2">
+                <RecentProjects />
+              </div>
+              <div className="lg:col-span-1">
+                <BudgetOverview spent={stats.totalSpend} budget={100000} />
+              </div>
             </div>
 
-            {/* Activity Feed */}
-            <div className="lg:col-span-2">
-              <ActivityFeed />
+            {/* Secondary Grid: Messages + Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-1">
+                <RecentMessages count={stats.messages} />
+              </div>
+              <div className="lg:col-span-2">
+                <ActivityFeed />
+              </div>
             </div>
-          </div>
 
-          {/* Developer Suggestions */}
-          <DeveloperSuggestions />
+            {/* Developer Suggestions */}
+            <DeveloperSuggestions />
+          </main>
+
+          <Footer />
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </>
   );
 }
