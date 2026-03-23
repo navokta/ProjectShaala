@@ -84,7 +84,7 @@ export default function DashboardPage() {
                 <QuickActions />
               </div>
               <div className="lg:col-span-1">
-                <ProfileCompletion percentage={user.profileComplete} />
+                <ProfileCompletion user={user} />
               </div>
             </div>
 

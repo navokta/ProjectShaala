@@ -1,8 +1,21 @@
-// components/Dashboard/ProfileCompletion.jsx
 "use client";
 
-export default function ProfileCompletion({ percentage }) {
-  const steps = [{ label: "Basic Info", done: true }];
+export default function ProfileCompletion({ user }) {
+  // Define fields that are required for a complete profile
+  const fields = [
+    { key: "name", label: "Full Name" },
+    { key: "email", label: "Email Address" },
+    { key: "username", label: "Username" },
+    { key: "phone", label: "Phone Number" },
+    { key: "avatar", label: "Profile Picture" },
+  ];
+
+  // Calculate how many fields are filled
+  const filledCount = fields.filter(
+    (field) => user[field.key] && user[field.key].trim() !== ""
+  ).length;
+  const totalFields = fields.length;
+  const percentage = Math.round((filledCount / totalFields) * 100);
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6">
@@ -10,7 +23,7 @@ export default function ProfileCompletion({ percentage }) {
         👤 Profile Setup
       </h3>
 
-      {/* Progress */}
+      {/* Progress Bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm mb-2">
           <span className="font-sans text-gray-600">Completion</span>
@@ -26,45 +39,48 @@ export default function ProfileCompletion({ percentage }) {
         </div>
       </div>
 
-      {/* Steps */}
+      {/* Field List */}
       <div className="space-y-3">
-        {steps.map((step, index) => (
-          <div key={index} className="flex items-center gap-3">
-            <div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                step.done
-                  ? "bg-emerald-500 border-emerald-500"
-                  : "border-gray-300"
-              }`}
-            >
-              {step.done && (
-                <svg
-                  className="w-3 h-3 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              )}
+        {fields.map((field) => {
+          const isFilled = user[field.key] && user[field.key].trim() !== "";
+          return (
+            <div key={field.key} className="flex items-center gap-3">
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  isFilled
+                    ? "bg-emerald-500 border-emerald-500"
+                    : "border-gray-300"
+                }`}
+              >
+                {isFilled && (
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
+              </div>
+              <span
+                className={`font-sans text-sm ${
+                  isFilled ? "text-gray-700" : "text-gray-400"
+                }`}
+              >
+                {field.label}
+              </span>
             </div>
-            <span
-              className={`font-sans text-sm ${
-                step.done ? "text-gray-700" : "text-gray-400"
-              }`}
-            >
-              {step.label}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* CTA */}
+      {/* CTA Button */}
       {percentage < 100 && (
         <a
           href="/dashboard/profile"
