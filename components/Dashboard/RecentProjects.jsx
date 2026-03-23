@@ -16,7 +16,7 @@ export default function RecentProjects() {
       id: 1,
       title: "E-Commerce Dashboard",
       status: "active",
-      developer: "Rahul Verma",
+      developer: "Bhavy Sharma",
       progress: 75,
       dueDate: "2 days left",
       budget: "₹15,000",
