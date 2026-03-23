@@ -22,7 +22,7 @@ const sampleProjects = [
     sales: 342,
     techStack: ["Next.js", "Tailwind", "MongoDB"],
     developer: {
-      name: "Rahul Verma",
+      name: "Bhavy Sharma",
       avatar: "https://placehold.co/100/111827/ffffff?text=RV",
       level: "Top Rated",
     },
