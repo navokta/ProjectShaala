@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 const ApplyDeveloperForm = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
     githubProfile: '',
@@ -18,6 +18,65 @@ const ApplyDeveloperForm = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Wait for auth to load
+  if (authLoading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  // Not logged in
+  if (!user) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">Please log in to apply.</p>
+      </div>
+    );
+  }
+
+  // Role checks
+  if (user.role !== 'buyer') {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">Only buyers can apply to become a developer.</p>
+      </div>
+    );
+  }
+
+  if (user.developerApplication?.status === 'pending') {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">Your application is pending review. We'll notify you once it's processed.</p>
+      </div>
+    );
+  }
+
+  if (user.role === 'developer') {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">You are already a developer! Access your developer dashboard.</p>
+      </div>
+    );
+  }
+
+  // Phone number required
+  if (!user.phone || user.phone.trim() === '') {
+    return (
+      <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
+        <h1 className="font-poppins text-2xl font-bold text-gray-900 mb-4">Phone Number Required</h1>
+        <p className="text-gray-600 mb-6">
+          To apply as a developer, we need your phone number for verification and communication.
+          Please update your profile with your phone number first.
+        </p>
+        <button
+          onClick={() => router.push('/profile')}
+          className="bg-gray-900 text-white px-6 py-2 rounded-md hover:bg-gray-800 transition"
+        >
+          Go to Profile
+        </button>
+      </div>
+    );
+  }
+
+  // --- form handlers (unchanged) ---
   const handleProjectChange = (index, value) => {
     const newProjects = [...formData.topProjects];
     newProjects[index] = value;
@@ -39,15 +98,7 @@ const ApplyDeveloperForm = () => {
     setSuccess('');
     setLoading(true);
 
-    // Check if user has phone number
-  if (!user.phone) {
-    setError('You must add your phone number to your profile before applying to become a developer. Please go to your profile settings and add your phone number.');
-    return;
-  }
-
-    // Filter out empty project URLs
     const projects = formData.topProjects.filter(p => p.trim() !== '');
-
     if (projects.length === 0) {
       setError('Please provide at least one project link');
       setLoading(false);
@@ -78,31 +129,6 @@ const ApplyDeveloperForm = () => {
       setLoading(false);
     }
   };
-
-  if (!user || user.role !== 'buyer') {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-600">Only buyers can apply to become a developer.</p>
-        <p className="text-gray-500 mt-2">Please sign up as a buyer first.</p>
-      </div>
-    );
-  }
-
-  if (user.developerApplication?.status === 'pending') {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-600">Your application is pending review. We'll notify you once it's processed.</p>
-      </div>
-    );
-  }
-
-  if (user.role === 'developer') {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-600">You are already a developer! Access your developer dashboard.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl border border-gray-200 shadow-sm text-black">
