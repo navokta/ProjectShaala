@@ -49,6 +49,15 @@ export async function GET(request) {
       profileComplete,
     };
 
+    // If user is developer, include developer-specific fields
+    if (user.role === 'developer') {
+      userData.title = user.title || '';
+      userData.location = user.location || '';
+      userData.hourlyRate = user.hourlyRate || 0;
+      userData.availability = user.availability || true;
+      userData.bio = user.bio || '';
+    }
+
     const stats = {
       totalProjects,
       activeProjects,
