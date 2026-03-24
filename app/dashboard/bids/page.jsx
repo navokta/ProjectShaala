@@ -1,268 +1,168 @@
-// app/dashboard/bids/page.jsx
+// app/dashboard/page.jsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import ProjectCard from "@/components/Dashboard/Bids/ProjectCard";
-import {
-  PlusIcon,
-  FunnelIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import StatsGrid from "@/components/Dashboard/StatsGrid";
+import QuickActions from "@/components/Dashboard/QuickActions";
+import RecentProjects from "@/components/Dashboard/RecentProjects";
+import RecentMessages from "@/components/Dashboard/RecentMessages";
+import BudgetOverview from "@/components/Dashboard/BudgetOverview";
+import ActivityFeed from "@/components/Dashboard/ActivityFeed";
+import DeveloperSuggestions from "@/components/Dashboard/DeveloperSuggestions";
+import ProfileCompletion from "@/components/Dashboard/ProfileCompletion";
 
-const categories = [
-  "All",
-  "Web Development",
-  "Mobile App",
-  "UI/UX Design",
-  "Backend/API",
-  "Database",
-  "DevOps",
-  "AI/ML",
-  "Blockchain",
-  "Other",
-];
-
-const statuses = [
-  { value: "all", label: "All Status" },
-  { value: "open", label: "Open" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "closed", label: "Closed" },
-];
-
-export default function AllBidsPage() {
+export default function DashboardPage() {
+  const { user: authUser, loading: authLoading, logout } = useAuth();
   const router = useRouter();
+
   const [user, setUser] = useState(null);
-  const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [pagination, setPagination] = useState({ page: 1, total: 0, pages: 0 });
 
   useEffect(() => {
-    // Mock user data - replace with API call
-    setUser({
-      name: "Bhavy Sharma",
-      email: "bhavy@example.com",
-      avatar: "https://placehold.co/100/111827/ffffff?text=BS",
-      role: "buyer",
-      profileComplete: 75,
-    });
+    // Wait for auth to finish loading
+    if (authLoading) return;
 
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async (page = 1) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      console.log(token);
-
-      const queryParams = new URLSearchParams({
-        page,
-        limit: 10,
-        buyerId: "current-user-id", // Replace with actual user ID
-      });
-
-      if (selectedStatus !== "all") {
-        queryParams.append("status", selectedStatus);
-      }
-
-      const res = await fetch(`/api/projects?${queryParams}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setProjects(data.data);
-        setPagination(data.pagination);
-      }
-    } catch (error) {
-      console.error("Fetch projects error:", error);
-    } finally {
-      setLoading(false);
+    // Redirect if not authenticated
+    if (!authUser) {
+      router.replace("/login");
+      return;
     }
-  };
 
+    const fetchDashboardData = async () => {
+      try {
+        // Get token from localStorage with correct key
+        const token = localStorage.getItem("accessToken");
+
+        // If no token, redirect to login
+        if (!token) {
+          router.replace("/login");
+          return;
+        }
+
+        // Fetch protected API with Authorization header
+        const res = await fetch("/api/dashboard/stats", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store", // Disable Next.js caching
+        });
+
+        // Handle unauthorized/expired token
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          logout();
+          router.replace("/login");
+          return;
+        }
+
+        // Handle other errors
+        if (!res.ok) {
+          throw new Error(`Failed to fetch dashboard: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Update state with API response
+        setUser(data.user);
+        setStats(data.stats);
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [authUser, authLoading, router, logout]);
+
+  // Logout handler using context
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    window.location.href = "/login";
+    logout();
   };
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" || project.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  if (!user) {
+  // Show loading spinner while auth or data is loading
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
+          <p className="font-sans text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if data failed to load
+  if (!user || !stats) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-sans text-gray-600 mb-4">
+            Unable to load dashboard.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition font-poppins text-sm"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex font-inter">
-      <Sidebar user={user} onLogout={handleLogout} />
+    <>
+      <div className="min-h-screen bg-gray-50 flex font-inter">
+        {/* Sidebar */}
+        <Sidebar user={user} onLogout={handleLogout} />
 
-      <div className="flex-1">
-        <DashboardHeader user={user} />
+        {/* Main Content */}
+        <div className="flex-1 lg:ml-0">
+          <DashboardHeader user={user} />
 
-        <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <div>
-              <h1 className="font-poppins font-bold text-2xl text-gray-900">
-                My Projects
-              </h1>
-              <p className="text-gray-500 mt-1">
-                Manage all your posted projects and bids
-              </p>
-            </div>
-            <Link
-              href="/dashboard/bids/create"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-poppins font-medium hover:bg-white hover:text-gray-900 border-2 border-gray-900 transition-all"
-            >
-              <PlusIcon className="w-5 h-5" />
-              Post New Project
-            </Link>
-          </div>
+          <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
+            {/* Stats Grid */}
+            <StatsGrid stats={stats} />
 
-          {/* Filters */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Search */}
-              <div className="md:col-span-2">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 font-inter text-sm"
-                  />
-                </div>
+            {/* Quick Actions + Profile Completion */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 mt-4">
+              <div className="lg:col-span-3">
+                <QuickActions />
               </div>
-
-              {/* Category Filter */}
-              <div>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 font-inter text-sm"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 font-inter text-sm"
-                >
-                  {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
+              <div className="lg:col-span-1">
+                <ProfileCompletion user={user} />
               </div>
             </div>
-          </div>
 
-          {/* Projects Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white border border-gray-200 rounded-2xl p-6 animate-pulse"
-                >
-                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
-                  <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-4" />
-                  <div className="h-10 bg-gray-200 rounded w-full" />
-                </div>
-              ))}
-            </div>
-          ) : filteredProjects.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProjects.map((project) => (
-                  <ProjectCard key={project._id} project={project} />
-                ))}
+            {/* Budget + Developer Suggestions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-1">
+                <BudgetOverview spent={stats.totalSpend} budget={100000} />
               </div>
-
-              {/* Pagination */}
-              {pagination.pages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
-                  <button
-                    onClick={() => fetchProjects(pagination.page - 1)}
-                    disabled={pagination.page === 1}
-                    className="px-4 py-2 rounded-xl border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-4 py-2 text-gray-600">
-                    Page {pagination.page} of {pagination.pages}
-                  </span>
-                  <button
-                    onClick={() => fetchProjects(pagination.page + 1)}
-                    disabled={pagination.page === pagination.pages}
-                    className="px-4 py-2 rounded-xl border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FunnelIcon className="w-8 h-8 text-gray-400" />
+              <div className="lg:col-span-2">
+                <DeveloperSuggestions />
               </div>
-              <h3 className="font-poppins font-semibold text-gray-900 text-lg mb-2">
-                No projects found
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Get started by posting your first project
-              </p>
-              <Link
-                href="/dashboard/bids/create"
-                className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-poppins font-medium hover:bg-white hover:text-gray-900 border-2 border-gray-900 transition-all"
-              >
-                <PlusIcon className="w-5 h-5" />
-                Post New Project
-              </Link>
             </div>
-          )}
-        </main>
 
-        <Footer />
+            {/* Optional Components - Uncomment when ready */}
+            {/* <RecentProjects /> */}
+            {/* <RecentMessages count={stats.messages} /> */}
+            {/* <ActivityFeed /> */}
+          </main>
+
+          <Footer />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
