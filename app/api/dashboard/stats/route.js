@@ -1,87 +1,175 @@
-import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/utils/auth';
-import { connectToDatabase } from '@/lib/mongodb';
-import Project from '@/lib/models/Project';
-import Bid from '@/lib/models/Bid';
-import Message from '@/lib/models/Message';
+// app/api/dashboard/stats/route.js
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/utils/auth";
+import { connectToDatabase } from "@/lib/mongodb";
+import Project from "@/lib/models/Project";
+import Bid from "@/lib/models/Bid";
+import Message from "@/lib/models/Message";
+
+// Cache control for dashboard stats (optional: adjust based on your needs)
+const CACHE_MAX_AGE = 60; // 60 seconds
 
 export async function GET(request) {
   try {
+    // 1. Authenticate user
     const user = await getCurrentUser(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!user || !user._id) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing authentication" },
+        { status: 401 },
+      );
     }
 
+    // 2. Connect to database
     await connectToDatabase();
 
-    // Stats for buyer
-    const totalProjects = await Project.countDocuments({ client: user._id });
-    const activeProjects = await Project.countDocuments({ client: user._id, status: 'in-progress' });
-    const completedProjects = await Project.countDocuments({ client: user._id, status: 'completed' });
-
-    // Calculate total spend (sum of budgets of all completed projects)
-    const completedProjectsAgg = await Project.aggregate([
-      { $match: { client: user._id, status: 'completed' } },
-      { $group: { _id: null, total: { $sum: '$budget' } } },
-    ]);
-    const totalSpend = completedProjectsAgg.length > 0 ? completedProjectsAgg[0].total : 0;
-
-    // Pending bids on user's projects
-    const userProjects = await Project.find({ client: user._id }).select('_id');
-    const projectIds = userProjects.map(p => p._id);
-    const pendingBids = await Bid.countDocuments({ project: { $in: projectIds }, status: 'pending' });
-
-    // Unread messages count (where user is receiver)
-    const messages = await Message.countDocuments({ receiver: user._id, read: false });
-
-    // Profile completion percentage
-    const profileComplete = calculateProfileCompletion(user);
-
-    // User data for header
-    const userData = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      username: user.username,   // ✅ add this
-      phone: user.phone,         // ✅ add this
-      avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=111827&color=fff`,
-      role: user.role,
-      profileComplete,
-    };
-
-    // If user is developer, include developer-specific fields
-    if (user.role === 'developer') {
-      userData.title = user.title || '';
-      userData.location = user.location || '';
-      userData.hourlyRate = user.hourlyRate || 0;
-      userData.availability = user.availability || true;
-      userData.bio = user.bio || '';
-    }
-
-    const stats = {
+    // 3. Fetch stats in parallel where possible for better performance
+    const [
       totalProjects,
       activeProjects,
       completedProjects,
-      totalSpend,
-      pendingBids,
-      messages,
+      completedProjectsAgg,
+      userProjects,
+      unreadMessages,
+    ] = await Promise.all([
+      Project.countDocuments({ client: user._id }).catch(() => 0),
+      Project.countDocuments({ client: user._id, status: "in-progress" }).catch(
+        () => 0,
+      ),
+      Project.countDocuments({ client: user._id, status: "completed" }).catch(
+        () => 0,
+      ),
+      // Calculate total spend from completed projects
+      Project.aggregate([
+        {
+          $match: {
+            client: user._id,
+            status: "completed",
+            budget: { $type: "number" },
+          },
+        },
+        { $group: { _id: null, total: { $sum: "$budget" } } },
+      ]).catch(() => []),
+      // Get user's project IDs for bid counting
+      Project.find({ client: user._id })
+        .select("_id")
+        .catch(() => []),
+      // Count unread messages
+      Message.countDocuments({ receiver: user._id, read: false }).catch(
+        () => 0,
+      ),
+    ]);
+
+    // 4. Calculate pending bids on user's projects
+    const projectIds = userProjects.map((p) => p._id);
+    const pendingBids =
+      projectIds.length > 0
+        ? await Bid.countDocuments({
+            project: { $in: projectIds },
+            status: "pending",
+          }).catch(() => 0)
+        : 0;
+
+    // 5. Calculate total spend safely
+    const totalSpend =
+      completedProjectsAgg.length > 0
+        ? Number(completedProjectsAgg[0].total) || 0
+        : 0;
+
+    // 6. Calculate profile completion
+    const profileComplete = calculateProfileCompletion(user);
+
+    // 7. Build safe user data object (sanitize sensitive fields)
+    const userData = {
+      id: user._id.toString(),
+      name: user.name || "Anonymous",
+      email: user.email || "",
+      username: user.username || "",
+      phone: user.phone || "",
+      avatar: user.avatar
+        ? user.avatar
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=111827&color=fff&size=128`,
+      role: user.role || "buyer",
+      profileComplete,
+      // Optional: add lastLogin, memberSince, etc. if available
+      ...(user.createdAt && { memberSince: user.createdAt }),
     };
 
-    return NextResponse.json({ user: userData, stats });
+    // 8. Build stats object with fallbacks
+    const stats = {
+      totalProjects: Number(totalProjects) || 0,
+      activeProjects: Number(activeProjects) || 0,
+      completedProjects: Number(completedProjects) || 0,
+      totalSpend,
+      pendingBids: Number(pendingBids) || 0,
+      messages: Number(unreadMessages) || 0,
+    };
+
+    // 9. Return response with cache headers (optional)
+    const response = NextResponse.json({ user: userData, stats });
+
+    // Add cache control headers for performance (adjust as needed)
+    response.headers.set(
+      "Cache-Control",
+      `public, s-maxage=${CACHE_MAX_AGE}, stale-while-revalidate`,
+    );
+
+    return response;
   } catch (error) {
-    console.error('Dashboard stats error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // 10. Comprehensive error logging
+    console.error("💥 Dashboard stats API error:", {
+      message: error?.message,
+      name: error?.name,
+      stack: process.env.NODE_ENV === "development" ? error?.stack : undefined,
+      userId: error?.userId, // If you add user context to errors
+      timestamp: new Date().toISOString(),
+    });
+
+    // 11. Return appropriate error response
+    // Don't expose internal error details to client
+    return NextResponse.json(
+      {
+        error:
+          process.env.NODE_ENV === "development"
+            ? `Server error: ${error?.message}`
+            : "Failed to load dashboard data. Please try again.",
+      },
+      { status: 500 },
+    );
   }
 }
 
-// Helper to calculate profile completion
+/**
+ * Calculate profile completion percentage
+ * @param {Object} user - User document from database
+ * @returns {number} Completion percentage (0-100)
+ */
 function calculateProfileCompletion(user) {
-  let completed = 0;
-  const total = 5; // name, email, username, phone, avatar (optional)
-  if (user.name) completed++;
-  if (user.email) completed++;
-  if (user.username) completed++;
-  if (user.phone) completed++;
-  if (user.avatar) completed++;
-  return Math.round((completed / total) * 100);
+  if (!user) return 0;
+
+  // Define required fields for a "complete" profile
+  const profileFields = [
+    { key: "name", weight: 1 },
+    { key: "username", weight: 1 },
+    { key: "phone", weight: 1 },
+    { key: "avatar", weight: 1 },
+    { key: "bio", weight: 1 }, // Optional: add more fields as needed
+  ];
+
+  const totalWeight = profileFields.reduce(
+    (sum, field) => sum + field.weight,
+    0,
+  );
+  const completedWeight = profileFields.reduce((sum, field) => {
+    const value = user[field.key];
+    // Consider field complete if it exists and is non-empty
+    const isComplete =
+      value != null &&
+      value !== "" &&
+      (typeof value !== "string" || value.trim() !== "");
+    return sum + (isComplete ? field.weight : 0);
+  }, 0);
+
+  return Math.round((completedWeight / totalWeight) * 100);
 }
