@@ -16,167 +16,90 @@ import SkillsSection from "@/components/DevDashboard/SkillsSection";
 
 export default function DeveloperDashboard() {
   const [developer, setDeveloper] = useState(null);
-  const [stats, setStats] = useState({
-    totalEarnings: 128500,
-    activeProjects: 3,
-    completedProjects: 18,
-    avgRating: 4.9,
-    pendingBids: 5,
-    messages: 12,
-    profileViews: 342,
-  });
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [bids, setBids] = useState([
-    {
-      id: 1,
-      projectTitle: "E-commerce Platform",
-      client: "TechStart Inc.",
-      amount: 45000,
-      status: "pending",
-      date: "2026-03-20",
-    },
-    {
-      id: 2,
-      projectTitle: "Mobile App UI",
-      client: "Appify Labs",
-      amount: 28000,
-      status: "accepted",
-      date: "2026-03-18",
-    },
-    {
-      id: 3,
-      projectTitle: "API Integration",
-      client: "DataFlow Co.",
-      amount: 15000,
-      status: "rejected",
-      date: "2026-03-15",
-    },
-    {
-      id: 4,
-      projectTitle: "Dashboard Redesign",
-      client: "MetricsHub",
-      amount: 32000,
-      status: "pending",
-      date: "2026-03-12",
-    },
-    {
-      id: 5,
-      projectTitle: "Chat Bot Development",
-      client: "SupportAI",
-      amount: 22000,
-      status: "pending",
-      date: "2026-03-10",
-    },
-  ]);
-
-  const [activeProjects, setActiveProjects] = useState([
-    {
-      id: 1,
-      title: "Mobile App UI",
-      client: "Appify Labs",
-      deadline: "2026-04-15",
-      progress: 65,
-      milestone: "UI Components",
-    },
-    {
-      id: 2,
-      title: "Payment Gateway",
-      client: "PayFast India",
-      deadline: "2026-04-30",
-      progress: 30,
-      milestone: "API Setup",
-    },
-    {
-      id: 3,
-      title: "Admin Panel",
-      client: "CloudManage",
-      deadline: "2026-05-10",
-      progress: 85,
-      milestone: "Final Testing",
-    },
-  ]);
-
-  const [skills, setSkills] = useState([
-    "React",
-    "Node.js",
-    "MongoDB",
-    "TypeScript",
-    "Next.js",
-    "Tailwind CSS",
-    "Socket.IO",
-    "Express.js",
-  ]);
-
-  const [activities, setActivities] = useState([
-    {
-      id: 1,
-      type: "bid",
-      message: "Submitted bid for 'E-commerce Platform'",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "message",
-      message: "New message from Appify Labs",
-      time: "4 hours ago",
-    },
-    {
-      id: 3,
-      type: "milestone",
-      message: "Completed 'UI Components' milestone",
-      time: "1 day ago",
-    },
-    {
-      id: 4,
-      type: "review",
-      message: "Received 5★ review from TechStart Inc.",
-      time: "2 days ago",
-    },
-    {
-      id: 5,
-      type: "payment",
-      message: "₹28,000 released from escrow",
-      time: "3 days ago",
-    },
-  ]);
+  // Mock data (will be replaced with real API calls)
+  const [bids, setBids] = useState([]);
+  const [activeProjects, setActiveProjects] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
-    // Mock developer data — replace with API call to /api/developers/me
-    setDeveloper({
-      name: "Bhavy Sharma",
-      email: "bhavymay18@gmail.com",
-      avatar: "https://placehold.co/100/111827/ffffff?text=RV",
-      role: "developer",
-      title: "Full-Stack Developer",
-      hourlyRate: 850,
-      availability: true,
-      rating: 4.9,
-      totalReviews: 24,
-      profileComplete: 90,
-      joinedDate: "2024-03-15",
-      location: "Bangalore, India",
-    });
+    const fetchDashboardData = async () => {
+      try {
+        const res = await fetch("/api/dashboard/stats");
+        if (!res.ok) throw new Error("Failed to fetch dashboard data");
+        const data = await res.json();
+
+        // Developer profile
+        setDeveloper({
+          name: data.user.name,
+          email: data.user.email,
+          avatar: data.user.avatar,
+          role: data.user.role,
+          title: data.user.title || "",
+          location: data.user.location || "",
+          hourlyRate: data.user.hourlyRate || 0,
+          availability: data.user.availability !== undefined ? data.user.availability : true,
+          rating: data.stats.avgRating || 0,
+          totalReviews: data.stats.totalReviews || 0,
+          profileComplete: data.user.profileComplete || 0,
+          joinedDate: data.user.createdAt,
+        });
+
+        // Stats
+        setStats({
+          totalEarnings: data.stats.totalEarnings || 0,
+          activeProjects: data.stats.activeProjects || 0,
+          completedProjects: data.stats.completedProjects || 0,
+          avgRating: data.stats.avgRating || 0,
+          pendingBids: data.stats.pendingBids || 0,
+          messages: data.stats.messages || 0,
+          profileViews: data.stats.profileViews || 0,
+          pendingEarnings: data.stats.pendingEarnings || 0,
+          releasedEarnings: data.stats.releasedEarnings || 0,
+        });
+
+        // TODO: Replace with actual API calls for:
+        // - Active projects: fetch("/api/developer/projects")
+        // - Bids: fetch("/api/developer/bids")
+        // - Skills: fetch("/api/developer/skills") (might come from user.skills)
+        // - Activities: fetch("/api/developer/activities")
+        // For now, we keep mock data to avoid breaking layout.
+        setBids([]);
+        setActiveProjects([]);
+        setSkills([]);
+        setActivities([]);
+      } catch (err) {
+        console.error("Dashboard data error:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login";
   };
 
   const toggleAvailability = (status) => {
-    // API call: PATCH /api/developers/me/availability
+    // API call: PATCH /api/developer/availability
     console.log("Availability updated:", status);
-    // Optimistic update
     setDeveloper((prev) => (prev ? { ...prev, availability: status } : null));
   };
 
   const handleSkillUpdate = (newSkills) => {
     setSkills(newSkills);
-    // API call: PATCH /api/developers/me/skills
+    // API call: PATCH /api/developer/skills
   };
 
-  if (!developer) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -187,29 +110,41 @@ export default function DeveloperDashboard() {
     );
   }
 
+  if (error || !developer || !stats) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading dashboard: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex font-inter">
-      {/* Sidebar */}
       <DeveloperSidebar
         developer={developer}
         stats={stats}
         onLogout={handleLogout}
       />
 
-      {/* Main Content */}
       <div className="flex-1 lg:ml-0">
         <DeveloperHeader developer={developer} />
 
         <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
-          {/* Stats Grid */}
           <DeveloperStatsGrid stats={stats} />
 
-          {/* Top Row: Earnings + Availability */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-4">
             <div className="lg:col-span-3">
               <EarningsOverview
-                pending={28500}
-                released={100000}
+                pending={stats.pendingEarnings || 0}
+                released={stats.releasedEarnings || 0}
                 total={stats.totalEarnings}
               />
             </div>
@@ -221,26 +156,20 @@ export default function DeveloperDashboard() {
             </div> */}
           </div>
 
-          {/* Main Grid: Active Projects + Bids */}
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
             <ActiveProjects projects={activeProjects} />
             {/* <BidsHistory bids={bids} /> */}
           </div>
 
-          {/* Secondary Grid: Skills + Messages */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-4">
-              <SkillsSection
-                skills={skills}
-                onSkillUpdate={handleSkillUpdate}
-              />
+              <SkillsSection skills={skills} onSkillUpdate={handleSkillUpdate} />
             </div>
             {/* <div className="lg:col-span-1">
               <RecentMessages count={stats.messages} />
             </div> */}
           </div>
 
-          {/* Activity Feed */}
           {/* <DeveloperActivityFeed activities={activities} /> */}
         </main>
 
