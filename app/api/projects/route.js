@@ -1,34 +1,69 @@
 // app/api/projects/route.js
+
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 import { verifyAccessToken } from "@/lib/utils/jwt";
 
+// ==========================
 // GET all projects (with filters)
+// ==========================
 export async function GET(request) {
   try {
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
+
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const status = searchParams.get("status");
     const category = searchParams.get("category");
     const buyerId = searchParams.get("buyerId");
 
+    const skip = (page - 1) * limit;
+
     const query = {};
 
+    // Filters
     if (status) query.status = status;
     if (category) query.category = category;
-    if (buyerId) query.buyer = buyerId;
 
-    const skip = (page - 1) * limit;
+    // 🔐 AUTH (optional but recommended)
+    const authHeader = request.headers.get("authorization");
+    let loggedInUser = null;
+    console.log("AUTH HEADER:", authHeader);
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+
+      // ✅ FIX
+      if (token && token !== "undefined" && token !== "null") {
+        try {
+          const user = await verifyAccessToken(token);
+          if (user?.userId) {
+            loggedInUser = user.userId;
+          }
+        } catch (err) {
+          console.log("Invalid token skipped");
+        }
+      }
+    }
+
+    // ✅ PRIORITY:
+    // 1. If buyerId is valid → use it
+    // 2. Else if logged user → use that
+    if (buyerId && mongoose.Types.ObjectId.isValid(buyerId)) {
+      query.buyer = buyerId;
+    } else if (loggedInUser) {
+      query.buyer = loggedInUser;
+    }
 
     const projects = await Project.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("-buyer"); // Hide buyer ObjectId from public
+      .select("-buyer"); // hide buyer ObjectId
 
     const total = await Project.countDocuments(query);
 
@@ -44,22 +79,26 @@ export async function GET(request) {
     });
   } catch (error) {
     console.error("GET projects error:", error);
+
     return NextResponse.json(
-      { success: false, message: "Failed to fetch projects" },
+      {
+        success: false,
+        message: error.message || "Failed to fetch projects",
+      },
       { status: 500 },
     );
   }
 }
 
+// ==========================
 // POST new project
+// ==========================
 export async function POST(request) {
   try {
     await connectToDatabase();
 
-    // Verify authentication
+    // 🔐 AUTH REQUIRED
     const authHeader = request.headers.get("authorization");
-
-    console.log("AUTH HEADER:", authHeader);
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
@@ -70,16 +109,9 @@ export async function POST(request) {
 
     const token = authHeader.split(" ")[1];
 
-    console.log("TOKEN:", token);
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: "Authentication required" },
-        { status: 401 },
-      );
-    }
-
     const user = await verifyAccessToken(token);
-    if (!user) {
+
+    if (!user || !user.userId) {
       return NextResponse.json(
         { success: false, message: "Invalid token" },
         { status: 401 },
@@ -88,7 +120,7 @@ export async function POST(request) {
 
     const body = await request.json();
 
-    // Validate required fields
+    // ✅ Required fields
     const requiredFields = [
       "title",
       "description",
@@ -102,7 +134,11 @@ export async function POST(request) {
       "deliverables",
       "experienceLevel",
     ];
-    const missingFields = requiredFields.filter((field) => !body[field]);
+
+    const missingFields = requiredFields.filter(
+      (field) =>
+        body[field] === undefined || body[field] === null || body[field] === "",
+    );
 
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -114,8 +150,11 @@ export async function POST(request) {
       );
     }
 
-    // Validate budget
-    if (body.budgetType === "fixed" && body.budgetMax < body.budgetMin) {
+    // ✅ Budget validation
+    if (
+      body.budgetType === "fixed" &&
+      Number(body.budgetMax) < Number(body.budgetMin)
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -125,7 +164,7 @@ export async function POST(request) {
       );
     }
 
-    // Create project
+    // ✅ Create project
     const project = await Project.create({
       ...body,
       buyer: user.userId,
@@ -136,8 +175,12 @@ export async function POST(request) {
     return NextResponse.json({ success: true, data: project }, { status: 201 });
   } catch (error) {
     console.error("POST project error:", error);
+
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to create project" },
+      {
+        success: false,
+        message: error.message || "Failed to create project",
+      },
       { status: 500 },
     );
   }
