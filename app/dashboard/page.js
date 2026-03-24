@@ -1,22 +1,24 @@
 // app/dashboard/page.js
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import Sidebar from "@/components/Dashboard/Sidebar";
 import StatsGrid from "@/components/Dashboard/StatsGrid";
 import QuickActions from "@/components/Dashboard/QuickActions";
-import RecentProjects from "@/components/Dashboard/RecentProjects";
-import RecentMessages from "@/components/Dashboard/RecentMessages";
-import BudgetOverview from "@/components/Dashboard/BudgetOverview";
-import ActivityFeed from "@/components/Dashboard/ActivityFeed";
-import DeveloperSuggestions from "@/components/Dashboard/DeveloperSuggestions";
 import ProfileCompletion from "@/components/Dashboard/ProfileCompletion";
+import BudgetOverview from "@/components/Dashboard/BudgetOverview";
+import DeveloperSuggestions from "@/components/Dashboard/DeveloperSuggestions";
+// import RecentProjects from "@/components/Dashboard/RecentProjects";
+// import RecentMessages from "@/components/Dashboard/RecentMessages";
+// import ActivityFeed from "@/components/Dashboard/ActivityFeed";
 
 export default function DashboardPage() {
   const { user: authUser, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   // State management
   const [user, setUser] = useState(null);
@@ -25,102 +27,117 @@ export default function DashboardPage() {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Fetch dashboard data with retry logic
+  // Memoized fetch function
+  const fetchDashboardData = useCallback(async () => {
+    const abortController = new AbortController();
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch("/api/dashboard/stats", {
+        credentials: "include", // 👈 Critical: sends HttpOnly auth cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        signal: abortController.signal,
+      });
+
+      const responseText = await res.text();
+
+      if (!res.ok) {
+        console.error("❌ API Error Details:", {
+          status: res.status,
+          statusText: res.statusText,
+          url: res.url,
+          body: responseText,
+          retryAttempt: retryCount + 1,
+        });
+
+        if (res.status === 401) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("authUser");
+            sessionStorage.clear();
+          }
+          router.replace("/login?expired=1");
+          return;
+        }
+        if (res.status === 403) {
+          throw new Error("Access denied. Please check your permissions.");
+        }
+        if (res.status === 404) {
+          throw new Error("Dashboard endpoint not found.");
+        }
+        if (res.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        }
+
+        throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("❌ JSON Parse Error:", parseError);
+        console.error("Raw response:", responseText);
+        throw new Error("Invalid response format from server");
+      }
+
+      if (!data?.user || !data?.stats) {
+        console.warn("⚠️ Unexpected API response structure:", data);
+        throw new Error("Invalid dashboard data structure");
+      }
+
+      setUser(data.user);
+      setStats(data.stats);
+      setRetryCount(0);
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        return;
+      }
+
+      const errorMessage = err?.message || "Failed to load dashboard data";
+      console.error("💥 Dashboard fetch failed:", err);
+      setError(errorMessage);
+
+      if (retryCount < 2 && !errorMessage.includes("401")) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(
+          `🔄 Retrying in ${delay}ms... (attempt ${retryCount + 1}/2)`,
+        );
+        setTimeout(() => {
+          setRetryCount((prev) => prev + 1);
+        }, delay);
+        return;
+      }
+    } finally {
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
+    }
+
+    return () => abortController.abort();
+  }, [retryCount, router]);
+
+  // Main effect
   useEffect(() => {
     if (authLoading) return;
 
     if (!authUser) {
-      window.location.href = "/login";
+      router.replace("/login");
       return;
     }
 
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch("/api/dashboard/stats", {
-          credentials: "include", // 👈 Critical: sends auth cookies
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // Optional: add cache busting for dev
-          // cache: "no-store",
-        });
-
-        // Read response as text first for better debugging
-        const responseText = await res.text();
-
-        if (!res.ok) {
-          console.error("❌ API Error Details:", {
-            status: res.status,
-            statusText: res.statusText,
-            url: res.url,
-            body: responseText,
-            retryAttempt: retryCount + 1,
-          });
-
-          // Handle specific status codes
-          if (res.status === 401) {
-            // Token expired or invalid - redirect to login
-            window.location.href = "/login?expired=1";
-            return;
-          }
-          if (res.status === 403) {
-            throw new Error("Access denied. Please check your permissions.");
-          }
-          if (res.status === 404) {
-            throw new Error("Dashboard endpoint not found.");
-          }
-          if (res.status >= 500) {
-            throw new Error("Server error. Please try again later.");
-          }
-
-          throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
-        }
-
-        // Parse JSON only after confirming OK status
-        let data;
-        try {
-          data = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error("❌ JSON Parse Error:", parseError);
-          console.error("Raw response:", responseText);
-          throw new Error("Invalid response format from server");
-        }
-
-        // Validate expected data structure
-        if (!data.user || !data.stats) {
-          console.warn("⚠️ Unexpected API response structure:", data);
-        }
-
-        setUser(data.user);
-        setStats(data.stats);
-        setRetryCount(0); // Reset retry count on success
-      } catch (err) {
-        console.error("💥 Dashboard fetch failed:", err);
-        setError(err.message || "Failed to load dashboard data");
-
-        // Auto-retry for transient errors (max 2 retries)
-        if (retryCount < 2 && !err.message?.includes("401")) {
-          const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-          console.log(
-            `🔄 Retrying in ${delay}ms... (attempt ${retryCount + 1}/2)`,
-          );
-          setTimeout(() => {
-            setRetryCount((prev) => prev + 1);
-          }, delay);
-          return;
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
-  }, [authUser, authLoading, retryCount]); // Added retryCount as dependency
 
-  // Handle logout with API call
+    return () => {
+      // Cleanup handled inside fetchDashboardData
+    };
+  }, [authUser, authLoading, fetchDashboardData, router]);
+
+  // Handle logout
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", {
@@ -130,8 +147,11 @@ export default function DashboardPage() {
     } catch (err) {
       console.warn("Logout API call failed:", err);
     } finally {
-      // Always redirect to login
-      window.location.href = "/login";
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("authUser");
+        sessionStorage.clear();
+      }
+      router.replace("/login");
     }
   };
 
@@ -159,7 +179,7 @@ export default function DashboardPage() {
     );
   }
 
-  // Error state with retry option
+  // Error state
   if (error || !user || !stats) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -170,6 +190,7 @@ export default function DashboardPage() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -193,7 +214,7 @@ export default function DashboardPage() {
               Try Again
             </button>
             <button
-              onClick={() => (window.location.href = "/")}
+              onClick={() => router.push("/")}
               className="px-5 py-2.5 bg-gray-100 text-gray-700 font-inter rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
             >
               Go Home
