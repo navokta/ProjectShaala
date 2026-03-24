@@ -1,39 +1,25 @@
-import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import User from '@/lib/models/User';
-import { verifyRefreshToken } from '@/lib/utils/jwt';
-import { clearTokenCookies } from '@/lib/utils/cookies';
+// app/api/auth/logout/route.js
+import { NextResponse } from "next/server";
 
-export async function POST(request) {
-  try {
-    const refreshToken = request.cookies.get('refreshToken')?.value;
+export async function POST() {
+  const response = NextResponse.json({ success: true });
 
-    if (refreshToken) {
-      await connectToDatabase();
-      const decoded = verifyRefreshToken(refreshToken);
-      if (decoded) {
-        await User.updateOne(
-          { _id: decoded.userId, refreshToken },
-          { $unset: { refreshToken: 1 } }
-        );
-      }
-    }
+  // Clear both tokens by setting expired cookies
+  response.cookies.set("accessToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0, // Expire immediately
+    path: "/",
+  });
 
-    const response = NextResponse.json(
-      { message: 'Logged out successfully' },
-      { status: 200 }
-    );
+  response.cookies.set("refreshToken", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
 
-    clearTokenCookies(response);
-
-    return response;
-  } catch (error) {
-    console.error('Logout error:', error);
-    const response = NextResponse.json(
-      { message: 'Logged out' },
-      { status: 200 }
-    );
-    clearTokenCookies(response);
-    return response;
-  }
+  return response;
 }
