@@ -1,3 +1,4 @@
+// context/AuthContext.jsx
 "use client";
 
 import {
@@ -9,170 +10,146 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-const AuthContext = createContext(undefined);
+// Create context
+const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+// Custom hook to use auth context
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
+
+// Provider component
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // ✅ Global error state for UI feedback
   const router = useRouter();
 
-  // 🔥 Helper: Logout logic ko alag function mein daala (DRY Principle)
-  const handleLogout = useCallback(
-    (redirect = true) => {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      setUser(null);
-      if (redirect) {
-        router.push("/login"); // ✅ Login page pe redirect karo, home pe nahi
-      }
-    },
-    [router],
-  );
-
-  // 🔥 Fetch user on mount (Token validation)
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch("/api/auth/me", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          // ✅ Cache disable karo taaki stale data na aaye
-          cache: "no-store",
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          console.warn("⚠️ Token invalid or expired, logging out...");
-          handleLogout(false); // ✅ Redirect mat karo abhi, bas state clear karo
-          return;
-        }
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch user profile");
-        }
-
-        const data = await res.json();
-
-        // ✅ Safe update: Check karo ki user object actually exist karta hai
-        if (data?.user) {
-          setUser(data.user);
-          // Optional: User data ko bhi sync kar lo agar backend se fresh data aaya hai
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-      } catch (err) {
-        console.error("❌ Auth fetch error:", err);
-        setError("Session expired. Please login again.");
-        // Critical error par safe side rehne ke liye logout
-        handleLogout(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [handleLogout]);
-
-  // 🔥 LOGIN Function
-  const login = async (identifier, password) => {
-    setError(null); // ✅ Pehle purani error clear karo
+  // Fetch current user from API (reads HttpOnly cookie)
+  const fetchCurrentUser = useCallback(async () => {
     try {
+      const res = await fetch("/api/auth/me", {
+        credentials: "include", // 👈 Sends cookies to server
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else if (res.status === 401) {
+        // Not authenticated
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch current user:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Check auth status on mount
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  // Login function
+  const login = useCallback(async (identifier, password) => {
+    try {
+      setLoading(true);
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
+        credentials: "include", // 👈 Server will set HttpOnly cookies
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        // ✅ Backend se aayi hui specific error message throw karo
-        throw new Error(data.message || data.error || "Login failed");
+        return { success: false, error: data.error || "Login failed" };
       }
 
-      // ✅ Validate response structure before storing
-      if (!data.accessToken || !data.user) {
-        throw new Error("Invalid response from server");
-      }
-
-      // Store tokens & user
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
+      // Server sets cookies, we just store user data
       setUser(data.user);
-      return data.user;
-    } catch (err) {
-      console.error("❌ Login error:", err);
-      setError(err.message);
-      throw err; // ✅ Error ko upar bhejo taaki component mein show kar sako
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, error: "Network error. Please try again." };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  // 🔥 SIGNUP Function
-  const signup = async (userData) => {
-    setError(null);
+  // Register function
+  const register = useCallback(async (userData) => {
     try {
+      setLoading(true);
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
+        credentials: "include",
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || data.error || "Signup failed");
+        return { success: false, error: data.error || "Registration failed" };
       }
-
-      if (!data.accessToken || !data.user) {
-        throw new Error("Invalid response from server");
-      }
-
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
 
       setUser(data.user);
-      return data.user;
-    } catch (err) {
-      console.error("❌ Signup error:", err);
-      setError(err.message);
-      throw err;
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error("Register error:", error);
+      return { success: false, error: "Network error. Please try again." };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  // 🔥 LOGOUT Function (Public)
-  const logout = () => {
-    handleLogout(true); // ✅ True bheja to redirect karega
-  };
+  // Logout function
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // 👈 Server clears cookies
+      });
+    } catch (error) {
+      console.warn("Logout API call failed:", error);
+    } finally {
+      // Clear client-side state
+      setUser(null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("authUser");
+        sessionStorage.clear();
+      }
+      // Redirect to login
+      router.replace("/login");
+    }
+  }, [router]);
 
-  // ✅ Value object mein error bhi expose kiya taaki UI mein dikha sako
+  // Update user profile
+  const updateUser = useCallback((updatedUser) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedUser } : null));
+  }, []);
+
+  // Context value
   const value = {
     user,
     loading,
-    error,
     login,
-    signup,
+    register,
     logout,
+    updateUser,
+    refreshUser: fetchCurrentUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+}
