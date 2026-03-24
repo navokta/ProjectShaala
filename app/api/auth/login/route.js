@@ -1,5 +1,4 @@
 // app/api/auth/login/route.js
-
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -32,7 +31,6 @@ export async function POST(request) {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -40,28 +38,46 @@ export async function POST(request) {
       );
     }
 
-    // ✅ Generate tokens
+    // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
 
+    // Save refresh token to DB
     user.refreshToken = refreshToken;
     await user.save();
 
-    // ✅ FIXED: Return "accessToken" instead of "token"
-    // Also added "refreshToken" in response for completeness
-    return NextResponse.json({
+    // 👇 Create response FIRST, then set cookies
+    const response = NextResponse.json({
       success: true,
-      accessToken, // ✅ Key name changed: token → accessToken
-      refreshToken, // ✅ Optional: frontend ko bhi de de
       user: {
-        _id: user._id, // ✅ id → _id (consistent with MongoDB)
+        _id: user._id,
         name: user.name,
         email: user.email,
         username: user.username,
         role: user.role,
-        avatar: user.avatar, // ✅ Agar avatar field hai to include kar
+        avatar: user.avatar,
       },
     });
+
+    // 👇 Set accessToken as HttpOnly cookie (primary auth method)
+    response.cookies.set("accessToken", accessToken, {
+      httpOnly: true, // 🔒 Not accessible via JavaScript
+      secure: process.env.NODE_ENV === "production", // 🌐 HTTPS only in prod
+      sameSite: "lax", // 🛡️ CSRF protection
+      maxAge: 15 * 60, // ⏱️ 15 minutes (short-lived access token)
+      path: "/", // 📍 Available to all routes
+    });
+
+    // 👇 Set refreshToken as HttpOnly cookie (for token refresh flow)
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60, // 🗓️ 7 days
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
