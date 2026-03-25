@@ -33,13 +33,12 @@ export async function GET(request, { params }) {
 }
 
 // 🔐 PUT update project (auth required - cookie based)
-// 🔐 PUT update project (auth required - cookie based)
+// 🔐 PUT update project
 export async function PUT(request, { params }) {
   try {
     await connectToDatabase();
-    const { id } = await params; // 👈 Await params first (Next.js 15+)
+    const { id } = await params;
 
-    // Read accessToken from HttpOnly cookie
     const accessToken = request.cookies.get("accessToken")?.value;
     if (!accessToken) {
       return NextResponse.json(
@@ -48,7 +47,6 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Verify token
     const user = await verifyAccessToken(accessToken);
     if (!user) {
       return NextResponse.json(
@@ -57,21 +55,16 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // 🔍 DEBUG: Log token structure to understand what we're getting
-    console.log("🔐 Token user object:", JSON.stringify(user, null, 2));
-
-    // ✅ Handle both possible token structures: user.userId OR user._id
     const userId = user.userId || user._id || user.id;
     if (!userId) {
-      console.error("❌ No userId found in token:", user);
       return NextResponse.json(
         { success: false, message: "Invalid token structure" },
         { status: 401 },
       );
     }
 
-    // Find project WITH buyer field for ownership check
-    const project = await Project.findById(id);
+    // 👇 CRITICAL FIX: Include buyer field for ownership check
+    const project = await Project.findById(id).select("+buyer");
     if (!project) {
       return NextResponse.json(
         { success: false, message: "Project not found" },
@@ -79,14 +72,9 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // 🔍 DEBUG: Log ownership check values
-    console.log("👤 Project buyer:", project.buyer?.toString());
-    console.log("🔑 Token userId:", userId);
-
-    // ✅ Safe ownership check - convert both to string for comparison
+    // ✅ Safe ownership check
     const projectBuyerId = project.buyer?.toString();
     if (!projectBuyerId || projectBuyerId !== String(userId)) {
-      console.warn("⚠️ Ownership mismatch:", { projectBuyerId, userId });
       return NextResponse.json(
         { success: false, message: "Unauthorized to edit this project" },
         { status: 403 },
@@ -95,15 +83,13 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
 
-    // ✅ Optional: Sanitize/validate body fields here if needed
-
     const updatedProject = await Project.findByIdAndUpdate(
       id,
       { ...body, updatedAt: Date.now() },
       { new: true, runValidators: true },
-    ).select("-buyer"); // Exclude buyer from response
+    ).select("-buyer"); // 👈 Exclude buyer from RESPONSE (not from fetch)
 
-    return NextResponse.json({ success: true, data: updatedProject });
+    return NextResponse.json({ success: true, updatedProject });
   } catch (error) {
     console.error("PUT project error:", error);
     return NextResponse.json(
@@ -117,7 +103,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     await connectToDatabase();
-    const { id } = await params; // 👈 Await params first
+    const { id } = await params;
 
     // Read accessToken from HttpOnly cookie
     const accessToken = request.cookies.get("accessToken")?.value;
@@ -129,15 +115,24 @@ export async function DELETE(request, { params }) {
     }
 
     const user = await verifyAccessToken(accessToken);
-    if (!user || !user.userId) {
+    if (!user) {
       return NextResponse.json(
         { success: false, message: "Invalid or expired token" },
         { status: 401 },
       );
     }
 
-    // Find project WITH buyer field for ownership check
-    const project = await Project.findById(id);
+    const userId = user.userId || user._id || user.id;
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "Invalid token structure" },
+        { status: 401 },
+      );
+    }
+
+    // 👇 CRITICAL FIX: Explicitly include +buyer to load the buyer field
+    const project = await Project.findById(id).select("+buyer");
+
     if (!project) {
       return NextResponse.json(
         { success: false, message: "Project not found" },
@@ -145,8 +140,13 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // ✅ Safe ownership check with null checks
-    if (!project.buyer || project.buyer.toString() !== user.userId) {
+    // 🔍 Debug logs (optional - remove in production)
+    console.log("🔐 DELETE - Project buyer:", project.buyer?.toString());
+    console.log("🔑 DELETE - Token userId:", userId);
+
+    // ✅ Safe ownership check
+    const projectBuyerId = project.buyer?.toString();
+    if (!projectBuyerId || projectBuyerId !== String(userId)) {
       return NextResponse.json(
         { success: false, message: "Unauthorized to delete this project" },
         { status: 403 },
