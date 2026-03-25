@@ -3,13 +3,12 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/utils/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
+import mongoose from "mongoose";
 
 // 🔹 GET: Fetch user's projects with pagination & filters
 export async function GET(request) {
   try {
     const user = await getCurrentUser(request);
-
-    console.log("🔍 GET /api/projects - Auth User:", user); // 🔍 DEBUG
 
     if (!user) {
       console.warn("⚠️ No authenticated user found");
@@ -28,21 +27,44 @@ export async function GET(request) {
     const category = searchParams.get("category");
     const search = searchParams.get("search");
 
-    // Build query - only fetch projects belonging to this user
-    const query = { client: user._id };
+    // 🔹 Build query - Check MULTIPLE fields for backward compatibility
+    // This handles: new projects (client), old projects (buyer), and broken projects (buyerEmail)
+    const query = {
+      $or: [
+        { client: user._id }, // ✅ Primary field (new standard)
+        { buyer: user._id }, // ✅ Legacy field (old projects)
+        { buyerEmail: user.email }, // ✅ Fallback (projects missing ObjectId refs)
+      ],
+    };
 
-    console.log("🔍 Query filter:", query);
+    // Apply additional filters
+    if (status && status !== "all") {
+      // Add status filter to each $or condition
+      query.$or = query.$or.map((condition) => ({ ...condition, status }));
+    }
 
-    if (status && status !== "all") query.status = status;
-    if (category && category !== "All") query.category = category;
+    if (category && category !== "All") {
+      query.$or = query.$or.map((condition) => ({ ...condition, category }));
+    }
+
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+      query.$and = [
+        query,
+        {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        },
       ];
     }
 
-    console.log("🔍 Final query:", JSON.stringify(query, null, 2));
+    console.log(
+      "🔍 GET /api/projects - User:",
+      user._id,
+      "Query:",
+      JSON.stringify(query),
+    );
 
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
@@ -54,7 +76,9 @@ export async function GET(request) {
       Project.countDocuments(query),
     ]);
 
-    console.log(`📊 Found ${total} projects, returning ${data.length}`);
+    console.log(
+      `📊 Found ${total} projects for user ${user._id}, returning ${data.length}`,
+    );
 
     return NextResponse.json({
       success: true,
@@ -67,16 +91,15 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    console.error("Projects GET error:", error);
+    console.error("❌ Projects GET error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch projects" },
+      { error: "Failed to fetch projects", details: error.message },
       { status: 500 },
     );
   }
 }
 
 // 🔹 POST: Create a new project
-// app/api/projects/route.js - POST handler (updated)
 export async function POST(request) {
   try {
     // 🔐 Authenticate user
@@ -85,7 +108,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 📥 Parse body
+    // 📥 Parse body safely
     let body;
     try {
       body = await request.json();
@@ -110,9 +133,10 @@ export async function POST(request) {
       experienceLevel,
       projectType,
       visibility = "public",
+      attachments = [],
     } = body;
 
-    // ✅ Validate required fields (frontend + backend)
+    // ✅ Validate required fields
     if (!title?.trim()) {
       return NextResponse.json(
         { error: "Project title is required" },
@@ -125,7 +149,12 @@ export async function POST(request) {
         { status: 400 },
       );
     }
-    if (budget === undefined || isNaN(budget) || budget < 0) {
+    if (
+      budget === undefined ||
+      budget === null ||
+      isNaN(budget) ||
+      budget < 0
+    ) {
       return NextResponse.json(
         { error: "Valid budget amount is required" },
         { status: 400 },
@@ -143,14 +172,14 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    // 🔹 Map frontend data to backend model schema
+    // 🔹 Map frontend data to backend model - ENSURE ObjectId fields are set correctly
     const projectData = {
       title: title.trim(),
       description: description.trim(),
       category: category || "Other",
       skills: Array.isArray(skills) ? skills.filter((s) => s?.trim()) : [],
 
-      // 💰 Budget handling - support both single budget + range
+      // 💰 Budget handling
       budget: Number(budget),
       budgetType: budgetType,
       budgetMin:
@@ -159,28 +188,39 @@ export async function POST(request) {
         budgetType === "fixed" ? Number(budgetRange?.max ?? budget) : undefined,
       hourlyRate: budgetType === "hourly" ? Number(budget) : undefined,
 
-      // 📅 Timeline - use frontend value or default
+      // 📅 Timeline & other fields
       timeline: timeline || "2-4 weeks",
-
-      // 📋 Requirements & Deliverables
       requirements: requirements.filter((r) => r.trim()),
       deliverables: deliverables.filter((d) => d.trim()),
-
-      // 👤 Buyer info - DERIVE from authenticated user (don't trust frontend)
-      buyer: user._id,
-      buyerEmail: user.email,
-      buyerName: user.name,
-      client: user._id, // Alias if your schema uses 'client'
-
-      // 🎯 Other fields
       experienceLevel: experienceLevel || "Intermediate",
       projectType: projectType || "One-time project",
       visibility: visibility || "public",
       status: "open",
+      featured: false,
+      bidCount: 0,
+      viewCount: 0,
+      attachments: Array.isArray(attachments) ? attachments : [],
+
+      // 👤 CRITICAL: Set BOTH ObjectId reference fields (not just strings!)
+      // Convert to ObjectId to ensure proper MongoDB reference type
+      client: new mongoose.Types.ObjectId(user._id),
+      buyer: new mongoose.Types.ObjectId(user._id),
+
+      // Keep email/name for quick display without joining
+      buyerEmail: user.email,
+      buyerName: user.name,
     };
+
+    console.log("📝 Creating project for user:", user._id, "with data:", {
+      title: projectData.title,
+      client: projectData.client,
+      buyer: projectData.buyer,
+    });
 
     // 🆕 Create project
     const project = await Project.create(projectData);
+
+    // Fetch fresh project with all fields populated
     const createdProject = await Project.findById(project._id).lean();
 
     return NextResponse.json(
@@ -192,16 +232,74 @@ export async function POST(request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Projects POST error:", error);
+    console.error("❌ Projects POST error:", error);
 
-    // Handle Mongoose validation errors with helpful messages
+    // Handle Mongoose validation errors
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err) => err.message);
       return NextResponse.json({ error: messages.join(", ") }, { status: 400 });
     }
 
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { error: "A project with this title already exists" },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to create project" },
+      { error: "Failed to create project", details: error.message },
+      { status: 500 },
+    );
+  }
+}
+
+// 🔹 Optional: DELETE endpoint for completeness
+export async function DELETE(request) {
+  try {
+    const user = await getCurrentUser(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectToDatabase();
+
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("id");
+
+    if (!projectId) {
+      return NextResponse.json(
+        { error: "Project ID is required" },
+        { status: 400 },
+      );
+    }
+
+    // Ensure user can only delete their own projects
+    const project = await Project.findOneAndDelete({
+      _id: projectId,
+      $or: [
+        { client: user._id },
+        { buyer: user._id },
+        { buyerEmail: user.email },
+      ],
+    });
+
+    if (!project) {
+      return NextResponse.json(
+        { error: "Project not found or unauthorized" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    console.error("❌ Projects DELETE error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete project" },
       { status: 500 },
     );
   }
