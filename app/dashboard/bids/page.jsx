@@ -83,6 +83,10 @@ export default function AllBidsPage() {
           cache: "no-store",
         });
 
+        console.log("📡 API Response Status:", res.status);
+        console.log("🔑 Auth User:", authUser);
+        console.log("📝 Query Params:", queryParams.toString());
+
         // Handle auth errors
         if (res.status === 401 || res.status === 403) {
           console.warn("🔐 Auth expired, redirecting to login");
@@ -103,6 +107,7 @@ export default function AllBidsPage() {
         const data = await res.json();
 
         if (data.success) {
+          console.log("✅ Projects count:", data.data?.length || 0);
           setProjects(data.data || []);
           setPagination(data.pagination || { page: 1, total: 0, pages: 0 });
         } else {
