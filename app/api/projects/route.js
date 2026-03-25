@@ -8,7 +8,11 @@ import Project from "@/lib/models/Project";
 export async function GET(request) {
   try {
     const user = await getCurrentUser(request);
+
+    console.log("🔍 GET /api/projects - Auth User:", user); // 🔍 DEBUG
+
     if (!user) {
+      console.warn("⚠️ No authenticated user found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,6 +31,8 @@ export async function GET(request) {
     // Build query - only fetch projects belonging to this user
     const query = { client: user._id };
 
+    console.log("🔍 Query filter:", query);
+
     if (status && status !== "all") query.status = status;
     if (category && category !== "All") query.category = category;
     if (search) {
@@ -35,6 +41,8 @@ export async function GET(request) {
         { description: { $regex: search, $options: "i" } },
       ];
     }
+
+    console.log("🔍 Final query:", JSON.stringify(query, null, 2));
 
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
@@ -45,6 +53,8 @@ export async function GET(request) {
         .lean(),
       Project.countDocuments(query),
     ]);
+
+    console.log(`📊 Found ${total} projects, returning ${data.length}`);
 
     return NextResponse.json({
       success: true,
