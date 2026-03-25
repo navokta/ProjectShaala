@@ -192,8 +192,44 @@ export default function ProjectForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (validate()) {
-      onSubmit(formData);
+      // 🔹 Transform formData to match backend expectations
+      const payload = {
+        // Basic fields
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        category: formData.category,
+        skills: formData.skills,
+
+        // 💰 CRITICAL: Convert budget to single NUMBER field
+        budget:
+          formData.budgetType === "fixed"
+            ? Number(formData.budgetMin) // Use min budget for fixed-price
+            : Number(formData.hourlyRate), // Use hourly rate for hourly
+
+        // Optional metadata (keep for frontend, backend can ignore)
+        budgetType: formData.budgetType,
+        budgetRange:
+          formData.budgetType === "fixed"
+            ? {
+                min: Number(formData.budgetMin),
+                max: Number(formData.budgetMax),
+              }
+            : undefined,
+
+        // Other fields
+        timeline: formData.timeline,
+        requirements: formData.requirements.filter((r) => r.trim()),
+        deliverables: formData.deliverables.filter((d) => d.trim()),
+        experienceLevel: formData.experienceLevel,
+        projectType: formData.projectType,
+        visibility: formData.visibility,
+        deadline: formData.deadline || null, // If you add a date picker later
+      };
+
+      console.log("📤 Final payload to backend:", payload); // 🔍 Debug
+      onSubmit(payload);
     }
   };
 
