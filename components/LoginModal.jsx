@@ -64,10 +64,14 @@ const LoginModal = () => {
       const userData = await login(formData.identifier, formData.password);
 
       // ✅ Role based redirect (ProjectShaala logic)
-      if (userData.role === "owner") {
-        router.push("/ownerdashboard");
-      } else {
-        // Default: tenant, buyer, developer -> dashboard
+      if (userData.role === "owner" || userData.role === "admin") {
+        router.push("/admin");
+      } 
+      else if (userData.role === "developer") {
+        router.push("/developer");
+      }
+      else {
+        // Default: buyer
         router.push("/dashboard");
       }
     } catch (err) {
