@@ -1,14 +1,15 @@
 // app/dashboard/bids/[id]/page.jsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import BidList from "@/components/Dashboard/BidList";
-import ProjectStatus from "@/components/Dashboard/ProjectStatus";
+import BidList from "@/components/Dashboard/Bids/BidList";
+import ProjectStatus from "@/components/Dashboard/Bids/ProjectStatus";
 import {
   ArrowLeftIcon,
   PencilIcon,
@@ -22,52 +23,93 @@ import {
 export default function ProjectDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const { user: authUser, loading: authLoading, logout } = useAuth();
+
   const [project, setProject] = useState(null);
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    setUser({
-      name: "Bhavy Sharma",
-      email: "bhavy@example.com",
-      avatar: "https://placehold.co/100/111827/ffffff?text=BS",
-      role: "buyer",
-    });
+  // ✅ Fetch project - memoized with useCallback
+  const fetchProject = useCallback(async () => {
+    if (!authUser?._id) return;
 
-    fetchProject();
-    fetchBids();
-  }, [params.id]);
-
-  const fetchProject = async () => {
     try {
-      const res = await fetch(`/api/projects/${params.id}`);
-      const data = await res.json();
+      setLoading(true);
+      setError(null);
 
+      const res = await fetch(`/api/projects/${params.id}`, {
+        credentials: "include", // 👈 HttpOnly cookies send karega
+        cache: "no-store",
+      });
+
+      // Auth expired handling
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        router.replace("/login?expired=1");
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch project");
+      }
+
+      const data = await res.json();
       if (data.success) {
         setProject(data.data);
+      } else {
+        setError(data.message || "Project not found");
       }
-    } catch (error) {
-      console.error("Fetch project error:", error);
+    } catch (err) {
+      console.error("Fetch project error:", err);
+      setError(err.message || "Failed to load project");
     } finally {
       setLoading(false);
     }
-  };
+  }, [authUser, params.id, logout, router]);
 
-  const fetchBids = async () => {
+  // ✅ Fetch bids - memoized
+  const fetchBids = useCallback(async () => {
+    if (!authUser?._id) return;
+
     try {
-      const res = await fetch(`/api/projects/${params.id}/bids`);
-      const data = await res.json();
+      const res = await fetch(`/api/projects/${params.id}/bids`, {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-      if (data.success) {
-        setBids(data.data);
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        router.replace("/login?expired=1");
+        return;
       }
-    } catch (error) {
-      console.error("Fetch bids error:", error);
-    }
-  };
 
+      if (!res.ok) return;
+
+      const data = await res.json();
+      if (data.success) {
+        setBids(data.data || []);
+      }
+    } catch (err) {
+      console.error("Fetch bids error:", err);
+    }
+  }, [authUser, params.id, logout, router]);
+
+  // ✅ Fetch on mount / auth ready
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!authUser) {
+      router.replace("/login");
+      return;
+    }
+
+    fetchProject();
+    fetchBids();
+  }, [authUser, authLoading, fetchProject, fetchBids, router]);
+
+  // ✅ DELETE handler - cookies auto-sent, no token header needed
   const handleDelete = async () => {
     if (
       !confirm(
@@ -79,36 +121,52 @@ export default function ProjectDetailsPage() {
 
     try {
       setDeleting(true);
-      const token = localStorage.getItem("token");
 
       const res = await fetch(`/api/projects/${params.id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // 👈 Browser automatically sends accessToken cookie
+        // ❌ NO Authorization header needed - backend reads from cookies
       });
 
       const data = await res.json();
 
       if (res.ok) {
         router.push("/dashboard/bids");
+        router.refresh();
       } else {
-        alert(data.message || "Failed to delete project");
+        // Handle specific error: bids exist
+        if (res.status === 400) {
+          alert(
+            "Cannot delete project with existing bids. Please close the project instead.",
+          );
+        } else {
+          alert(data.message || "Failed to delete project");
+        }
       }
-    } catch (error) {
-      console.error("Delete error:", error);
+    } catch (err) {
+      console.error("Delete error:", err);
       alert("Failed to delete project");
     } finally {
       setDeleting(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+  // ✅ Logout - call API to clear HttpOnly cookies server-side
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // 👈 Send cookies so server can clear them
+      });
+    } catch (err) {
+      console.warn("Logout API call failed:", err);
+    } finally {
+      logout(); // Clears context + redirects to /login
+    }
   };
 
-  if (loading || !user) {
+  // ✅ Loading state
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
@@ -116,6 +174,50 @@ export default function ProjectDetailsPage() {
     );
   }
 
+  // ✅ Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h3 className="font-poppins text-lg font-semibold text-gray-900 mb-2">
+            Unable to load project
+          </h3>
+          <p className="font-inter text-gray-500 mb-6">{error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              fetchProject();
+            }}
+            className="px-5 py-2.5 bg-gray-900 text-white font-inter rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Not authenticated - redirect handled in useEffect
+  if (!authUser) {
+    return null;
+  }
+
+  // ✅ Project not found
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -136,10 +238,10 @@ export default function ProjectDetailsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-inter">
-      <Sidebar user={user} onLogout={handleLogout} />
+      <Sidebar user={authUser} onLogout={handleLogout} />
 
       <div className="flex-1">
-        <DashboardHeader user={user} />
+        <DashboardHeader user={authUser} />
 
         <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-10">
           {/* Header */}
@@ -156,7 +258,10 @@ export default function ProjectDetailsPage() {
                   {project.title}
                 </h1>
                 <p className="text-gray-500 mt-1">
-                  Posted {project.age || "Recently"}
+                  Posted{" "}
+                  {project.createdAt
+                    ? new Date(project.createdAt).toLocaleDateString()
+                    : "Recently"}
                 </p>
               </div>
             </div>
@@ -164,7 +269,7 @@ export default function ProjectDetailsPage() {
             <div className="flex items-center gap-3">
               <Link
                 href={`/dashboard/bids/${params.id}/edit`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-900 transition-all"
+                className="inline-flex text-black items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-900 transition-all"
               >
                 <PencilIcon className="w-4 h-4" />
                 Edit
@@ -173,9 +278,14 @@ export default function ProjectDetailsPage() {
                 onClick={handleDelete}
                 disabled={deleting || project.bidCount > 0}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                title={
+                  project.bidCount > 0
+                    ? "Cannot delete project with bids"
+                    : "Delete project"
+                }
               >
                 <TrashIcon className="w-4 h-4" />
-                Delete
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
@@ -265,7 +375,7 @@ export default function ProjectDetailsPage() {
                       <p className="font-poppins font-semibold text-gray-900">
                         {project.budgetType === "hourly"
                           ? `₹${project.hourlyRate}/hr`
-                          : `₹${project.budgetMin.toLocaleString()} - ₹${project.budgetMax.toLocaleString()}`}
+                          : `₹${project.budgetMin?.toLocaleString()} - ₹${project.budgetMax?.toLocaleString()}`}
                       </p>
                     </div>
                   </div>
