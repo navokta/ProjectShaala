@@ -1,7 +1,7 @@
 // app/dashboard/bids/create/page.jsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Footer from "@/components/Footer";
@@ -13,60 +13,114 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 export default function CreateProjectPage() {
   const router = useRouter();
 
-  const [user, setUser] = useState({
-    name: "Bhavy Sharma",
-    email: "bhavy@example.com",
-    avatar: "https://placehold.co/100/111827/ffffff?text=BS",
-    role: "buyer",
-  });
-
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ FIX 1: correct token key
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    window.location.href = "/login";
+  // 🔹 Fetch current user from API (cookies sent automatically)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include", // 🍪 Send cookies with request
+        });
+
+        if (!res.ok) {
+          throw new Error("Not authenticated");
+        }
+
+        const data = await res.json();
+        setUser(data.user);
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.push("/login"); // Redirect if not logged in
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  // 🔹 Logout: Call API to clear cookies server-side
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // 🍪 Send cookies so server can clear them
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      router.push("/login");
+    }
   };
 
   const handleSubmit = async (projectData) => {
     try {
-      setLoading(true);
+      setSubmitting(true);
       setError(null);
 
-      // ✅ FIX 2: correct key
-      const token = localStorage.getItem("accessToken");
-
-      // ❌ Agar token hi nahi hai → stop
-      if (!token) {
-        throw new Error("Please login again");
-      }
+      console.log("📤 Sending project data:", projectData); // 🔍 Debug log
 
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // ✅ FIX 3: safe header
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(projectData),
+        credentials: "include",
       });
 
-      const data = await res.json();
+      // 🔍 Read response safely
+      const contentType = res.headers.get("content-type");
+      let data;
+
+      if (contentType?.includes("application/json")) {
+        data = await res.json();
+        console.log("📥 Server response:", { status: res.status, data }); // 🔍 Debug log
+      } else {
+        const text = await res.text();
+        throw new Error(
+          `Server returned ${res.status}: ${text || "No response body"}`,
+        );
+      }
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to create project");
+        if (res.status === 401) {
+          router.push("/login");
+          throw new Error("Session expired. Please login again.");
+        }
+        // ✅ Show the ACTUAL validation error from server
+        throw new Error(data.error || data.message || `Error ${res.status}`);
       }
 
       // ✅ Success
       router.push("/dashboard/bids");
+      router.refresh();
     } catch (err) {
-      console.error("Create project error:", err);
+      console.error("❌ Create project error:", err);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
+  // 🔹 Loading state while fetching user
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-inter">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  // 🔹 Redirect if no user (shouldn't happen due to useEffect, but safe fallback)
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-inter">
@@ -103,7 +157,7 @@ export default function CreateProjectPage() {
           )}
 
           {/* Form */}
-          <ProjectForm onSubmit={handleSubmit} loading={loading} />
+          <ProjectForm onSubmit={handleSubmit} loading={submitting} />
         </main>
 
         <Footer />
