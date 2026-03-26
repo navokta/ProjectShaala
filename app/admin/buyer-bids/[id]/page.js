@@ -110,7 +110,7 @@ export default function AdminBuyerBidDetailsPage() {
             <h1 className="font-poppins font-bold text-2xl text-gray-900">
               Buyer Bid (Project) Details
             </h1>
-            <Link href="/admin/buyer-bids" className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+            <Link href="/admin/buyer-bids" className="px-4 text-black py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
               Back to Buyer Bids
             </Link>
           </div>
@@ -197,7 +197,7 @@ export default function AdminBuyerBidDetailsPage() {
                     value={project.status}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
                     disabled={updating}
-                    className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-gray-900"
+                    className="border border-gray-300 text-black rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-gray-900"
                   >
                     <option value="draft">Draft</option>
                     <option value="open">Open</option>
@@ -210,11 +210,11 @@ export default function AdminBuyerBidDetailsPage() {
               </div>
 
               {/* Buyer Info */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="bg-white border text-black border-gray-200 rounded-xl p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Buyer Info</h3>
                 <div className="space-y-2 text-sm">
-                  <p><span className="font-medium text-gray-700">Name:</span> {project.buyerName}</p>
-                  <p><span className="font-medium text-gray-700">Email:</span> {project.buyerEmail}</p>
+                  <p><span className="font-medium text-black">Name:</span> {project.buyerName}</p>
+                  <p><span className="font-medium text-black">Email:</span> {project.buyerEmail}</p>
                   <Link href={`/admin/users?email=${project.buyerEmail}`} className="text-blue-600 hover:underline inline-block mt-4 text-xs font-semibold uppercase tracking-wider">
                     Search Buyer
                   </Link>
