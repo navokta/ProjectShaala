@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/Footer";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
@@ -16,6 +17,7 @@ import {
   CheckIcon,
   XMarkIcon,
   ExclamationTriangleIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 
 export default function AdminBidsPage() {
@@ -42,7 +44,7 @@ export default function AdminBidsPage() {
       router.replace("/login");
       return;
     }
-    if (authUser.role !== "owner") {
+    if (authUser.role !== "owner" && authUser.role !== "admin") {
       router.replace("/dashboard");
       return;
     }
@@ -57,7 +59,7 @@ export default function AdminBidsPage() {
   // ✅ Fetch bids with search/filter/pagination
   const fetchBids = useCallback(
     async (page = 1) => {
-      if (authUser?.role !== "admin") return;
+      if (authUser?.role !== "admin" && authUser?.role !== "owner") return;
 
       try {
         setLoading(true);
@@ -103,14 +105,14 @@ export default function AdminBidsPage() {
 
   // ✅ Initial fetch + auth dependency
   useEffect(() => {
-    if (authUser?.role === "admin") {
+    if (authUser?.role === "admin" || authUser?.role === "owner") {
       fetchBids();
     }
   }, [authUser, fetchBids]);
 
   // ✅ Debounced search
   useEffect(() => {
-    if (authUser?.role !== "admin") return;
+    if (authUser?.role !== "admin" && authUser?.role !== "owner") return;
     const timer = setTimeout(() => fetchBids(1), 400);
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -212,7 +214,7 @@ export default function AdminBidsPage() {
     );
   }
 
-  if (!authUser || authUser.role !== "admin") {
+  if (!authUser || (authUser.role !== "admin" && authUser.role !== "owner")) {
     return null;
   }
 
@@ -521,6 +523,13 @@ export default function AdminBidsPage() {
                               </>
                             ) : (
                               <>
+                                <Link
+                                  href={`/admin/bids/${bid._id}`}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="View Details"
+                                >
+                                  <EyeIcon className="w-4 h-4" />
+                                </Link>
                                 <button
                                   onClick={() => handleEdit(bid)}
                                   className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
