@@ -21,7 +21,8 @@ const navigation = [
   { name: "Users", href: "/admin/users", icon: UserGroupIcon },
   { name: "Analytics", href: "/admin/analytics", icon: ChartBarIcon },
   { name: "Settings", href: "/admin/settings", icon: Cog6ToothIcon },
-  { name: "Buyer Bids", href: "/admin/bids", icon: TagIcon },
+  { name: "Buyer Bids", href: "/admin/buyer-bids", icon: TagIcon },
+  { name: "Developer Bids", href: "/admin/developer-bids", icon: DocumentTextIcon },
 ];
 
 // For owner, add "Manage Admins" link
