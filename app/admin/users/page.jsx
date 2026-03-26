@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -35,6 +36,7 @@ export default function AdminUsers() {
               <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Role</th>
               <th className="px-4 py-2 border">Joined</th>
+              <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +46,11 @@ export default function AdminUsers() {
                 <td className="px-4 py-2 border">{user.email}</td>
                 <td className="px-4 py-2 border">{user.role}</td>
                 <td className="px-4 py-2 border">{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-2 border">
+                  <Link href={`/admin/users/${user._id}`} className="text-blue-600 hover:text-blue-800 font-medium">
+                    View Details
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
