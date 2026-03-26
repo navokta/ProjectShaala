@@ -15,7 +15,7 @@ const navigation = [
   { name: "Overview", href: "/admin", icon: HomeIcon },
   {
     name: "Developer Applications",
-    href: "/admin/applications",
+    href: "/admin/developer-requests",
     icon: DocumentTextIcon,
   },
   { name: "Users", href: "/admin/users", icon: UserGroupIcon },
