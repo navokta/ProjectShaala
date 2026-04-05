@@ -1,33 +1,10 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import AdminSidebar from '@/components/Admin/AdminSidebar';
-
-export default function AdminLayout({ children }) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-    if (!loading && user && user.role !== 'admin' && user.role !== 'owner') {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  if (loading) return <div>Loading...</div>;
-  if (!user) return null;
-  if (user.role !== 'admin' && user.role !== 'owner') return null;
-
+export default function AdminOverview() {
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar role={user.role} />
-      <main className="flex-1 ml-64 p-8">
-        {children}
-      </main>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h1>
+      <p className="text-gray-600">Welcome to the admin dashboard. Use the sidebar to manage applications, users, bids, and settings.</p>
     </div>
   );
 }
