@@ -1,4 +1,3 @@
-// \app\admin\admins\page.jsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -21,7 +20,6 @@ export default function ManageAdminsPage() {
     }
   }, [user, loading, router]);
 
-  // Fetch list of admins only when user is owner
   useEffect(() => {
     if (user?.role === 'owner') {
       fetchAdmins();
@@ -32,15 +30,12 @@ export default function ManageAdminsPage() {
     setLoadingAdmins(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/manage-admins');
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
-      }
+      const res = await fetch('/api/admin/manage-admins', { credentials: 'include' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setAdmins(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(`Failed to load admins: ${err.message}`);
+      setError('Failed to load admins');
     } finally {
       setLoadingAdmins(false);
     }
@@ -51,7 +46,7 @@ export default function ManageAdminsPage() {
     setError('');
     setSearchResult(null);
     try {
-      const res = await fetch(`/api/admin/users?email=${encodeURIComponent(searchEmail)}`);
+      const res = await fetch(`/api/admin/users?email=${encodeURIComponent(searchEmail)}`, { credentials: 'include' });
       if (res.status === 404) {
         setError('User not found');
         return;
@@ -70,6 +65,7 @@ export default function ManageAdminsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to add admin');
       fetchAdmins();
@@ -87,6 +83,7 @@ export default function ManageAdminsPage() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to remove');
       fetchAdmins();
@@ -95,19 +92,15 @@ export default function ManageAdminsPage() {
     }
   };
 
-  // Wait for auth to load, then redirect if needed
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (!user) return null;
-  if (user.role !== 'owner') return null;
+  if (loading) return <div className="flex justify-center p-8"><div className="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" /></div>;
+  if (!user || user.role !== 'owner') return null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 text-black bg-white">
+    <div className="max-w-4xl text-gray-900">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Admins</h1>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-          {error}
-        </div>
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>
       )}
 
       <div className="mb-8 bg-white p-6 rounded-lg border shadow-sm">

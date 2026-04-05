@@ -52,7 +52,7 @@ export default function ApplicationsPage() {
   if (loading) return <div className="flex justify-center p-8"><div className="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" /></div>;
 
   return (
-    <div>
+    <div className='text-gray-900'>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Developer Applications</h1>
       {applications.length === 0 ? (
         <p className="text-gray-500">No pending applications.</p>
