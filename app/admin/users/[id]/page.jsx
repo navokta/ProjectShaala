@@ -86,7 +86,7 @@ export default function AdminUserDetails() {
   if (!user) return <div className="text-gray-500">User not found</div>;
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl text-gray-900">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">User Details</h1>
         <Link href="/admin/users" className="text-blue-600 hover:text-blue-800 transition">
