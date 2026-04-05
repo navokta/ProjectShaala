@@ -33,8 +33,8 @@ const AdminSidebar = ({ role }) => {
   const navItems = role === "owner" ? [...navigation, ...ownerOnly] : navigation;
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 pt-20">
-      <nav className="mt-8 px-4">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 pt-3">
+      <nav>
         {/* Back to Home Link */}
         <Link
           href="/"
