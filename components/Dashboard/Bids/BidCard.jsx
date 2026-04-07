@@ -60,13 +60,25 @@ export default function BidCard({ bid, onSelect }) {
         </div>
       </div>
 
-      {onSelect && (
+      {onSelect && bid.status === 'pending' && (
         <button
           onClick={() => onSelect(bid._id)}
           className="w-full py-3 bg-gray-900 text-white rounded-xl font-poppins font-medium hover:bg-white hover:text-gray-900 border-2 border-gray-900 transition-all"
         >
           Accept Bid
         </button>
+      )}
+      
+      {bid.status === 'accepted' && (
+        <div className="w-full py-3 bg-green-100 text-green-800 text-center rounded-xl font-poppins font-medium border-2 border-green-200">
+          Accepted
+        </div>
+      )}
+      
+      {bid.status === 'rejected' && (
+        <div className="w-full py-3 bg-red-50 text-red-400 text-center rounded-xl font-poppins font-medium border-2 border-red-100">
+          Rejected
+        </div>
       )}
     </div>
   );
