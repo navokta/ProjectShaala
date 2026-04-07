@@ -151,6 +151,32 @@ export default function ProjectDetailsPage() {
     }
   };
 
+  // ✅ ACCEPT BID handler
+  const handleAcceptBid = async (bidId) => {
+    if (!confirm("Are you sure you want to accept this bid? This will close the project to other bids.")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/projects/${params.id}/bids/${bidId}/accept`, {
+        method: "PUT",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert("Bid accepted successfully!");
+        fetchProject();
+        fetchBids();
+      } else {
+        alert(data.message || "Failed to accept bid");
+      }
+    } catch (err) {
+      console.error("Accept bid error:", err);
+      alert("An error occurred while accepting the bid.");
+    }
+  };
+
   // ✅ Logout - call API to clear HttpOnly cookies server-side
   const handleLogout = async () => {
     try {
@@ -458,7 +484,7 @@ export default function ProjectDetailsPage() {
               <BidList
                 bids={bids}
                 projectId={params.id}
-                onSelectBid={() => {}}
+                onSelectBid={handleAcceptBid}
               />
             </div>
           )}
