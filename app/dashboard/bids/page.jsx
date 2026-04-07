@@ -243,13 +243,21 @@ export default function AllBidsPage() {
                 Manage all your posted projects and bids
               </p>
             </div>
-            <Link
-              href="/dashboard/bids/create"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-poppins font-medium hover:bg-white hover:text-gray-900 border-2 border-gray-900 transition-all"
-            >
-              <PlusIcon className="w-5 h-5" />
-              Post New Project
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                href="/dashboard/bids/hire"
+                className="inline-flex items-center gap-2 bg-white text-gray-900 border border-gray-300 px-6 py-3 rounded-xl font-poppins font-medium hover:bg-gray-50 transition-all shadow-sm"
+              >
+                Hire Developer Direct
+              </Link>
+              <Link
+                href="/dashboard/bids/create"
+                className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-poppins font-medium hover:bg-white hover:text-gray-900 border-2 border-gray-900 transition-all font-regular"
+              >
+                <PlusIcon className="w-5 h-5" />
+                Post New Project
+              </Link>
+            </div>
           </div>
 
           {/* Filters */}
