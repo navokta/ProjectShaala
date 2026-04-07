@@ -72,10 +72,15 @@ export default async function MyBidsPage() {
                       className="block hover:bg-gray-50 transition duration-150 ease-in-out px-4 py-5 sm:px-6"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                           <p className="text-lg font-medium text-blue-600 truncate mr-2">
                             {bid.project?.title || "Deleted Project"}
                           </p>
+                          {bid.isDirectHire && (
+                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200 shadow-sm mr-2">
+                               Direct Hire Invitation
+                             </span>
+                          )}
                           {getStatusBadge(bid.status)}
                         </div>
                         <div className="ml-2 flex-shrink-0 flex">
