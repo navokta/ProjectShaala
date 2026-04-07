@@ -8,6 +8,7 @@ import Project from "@/lib/models/Project";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ChevronLeft, Info, CheckCircle, XCircle, Clock, Link as LinkIcon } from "lucide-react";
+import DirectHireActions from "./DirectHireActions";
 
 async function getUser() {
   try {
@@ -157,7 +158,7 @@ export default async function BidDetailsPage({ params }) {
               <div>
                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4 items-center flex">
                   <Info className="w-5 h-5 text-blue-500 mr-2" />
-                  Cover Letter / Proposal
+                  {bid.isDirectHire ? "Job Description" : "Cover Letter / Proposal"}
                 </h3>
                 <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
                   <p className="text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
@@ -165,6 +166,10 @@ export default async function BidDetailsPage({ params }) {
                   </p>
                 </div>
               </div>
+
+              {bid.isDirectHire && bid.status === 'pending' && (
+                 <DirectHireActions bidId={bid._id.toString()} />
+              )}
             </div>
             
             {projectInfo && (
