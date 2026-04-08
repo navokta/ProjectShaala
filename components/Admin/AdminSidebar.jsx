@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from '@/context/AuthContext';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -29,12 +30,13 @@ const ownerOnly = [
 ];
 
 const AdminSidebar = ({ role }) => {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const navItems = role === "owner" ? [...navigation, ...ownerOnly] : navigation;
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 pt-3">
-      <nav>
+    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 pt-3 flex flex-col">
+      <nav className="flex-1">
         {/* Back to Home Link */}
         <Link
           href="/"
@@ -65,6 +67,16 @@ const AdminSidebar = ({ role }) => {
           );
         })}
       </nav>
+
+      <div className="px-4 py-4 border-t border-gray-200">
+        <button
+          onClick={logout}
+          className="flex items-center w-full px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+        >
+          <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-3" />
+          <span className="font-medium">Logout</span>
+        </button>
+      </div>
     </aside>
   );
 };
