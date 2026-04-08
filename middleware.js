@@ -32,11 +32,35 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  const decoded = await verifyAccessToken(token);
+const decoded = await verifyAccessToken(token);
   if (!decoded) {
     return NextResponse.redirect(new URL('/login?expired=1', request.url));
   }
+  const res = await fetch(new URL('/api/auth/me', request.url), {
+    headers: {
+      cookie: request.headers.get('cookie') || '',
+    },
+  });
 
+  const data = await res.json();
+  const role = data?.user?.role; // ✅ FIXED
+
+  // ❗ If no user → redirect login
+  if (!data.user) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 🔐 Role-based access
+  if (pathname.startsWith('/developer') && role !== 'developer') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  if (pathname.startsWith('/dashboard') && role !== 'buyer') {
+    return NextResponse.redirect(new URL('/developer', request.url));
+  }
+
+
+  
   return NextResponse.next();
 }
 
