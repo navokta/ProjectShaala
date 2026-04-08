@@ -131,8 +131,16 @@ export default function Sidebar({ user, onLogout }) {
             })}
           </nav>
 
-          {/* Logout */}
-          <div className="px-4 py-4 border-t border-gray-200">
+          {/* Footer actions */}
+          <div className="px-4 py-4 border-t border-gray-200 space-y-3">
+            <Link
+              href="/"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-700 
+                hover:bg-gray-100 hover:text-gray-900 transition-all"
+            >
+              <HomeIcon className="w-5 h-5 text-gray-400" />
+              <span>Back to Home</span>
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-700 
