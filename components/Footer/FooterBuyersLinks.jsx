@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 const links = [
-  { name: '?', href: '#' },
+  { name: 'Explore Projects', href: '/projects' },
 ];
 
 const FooterBuyersLinks = () => {

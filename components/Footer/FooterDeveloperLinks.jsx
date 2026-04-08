@@ -3,7 +3,8 @@ import Link from 'next/link';
 
 
 const links = [
-  { name: '?', href: '#' },
+  { name: 'Become Developer', href: '/apply-developer' },
+  { name: 'Pricing & Fees', href: '/pricing' },
 ];
 
 
