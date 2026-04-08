@@ -47,40 +47,40 @@ const LoginModal = () => {
   // LoginModal.jsx ke andar handleSubmit function update kar:
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 1. Pehle form validation
-    const validationErrors = validateForm();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+  // 1. Form validation
+  const validationErrors = validateForm();
+  setErrors(validationErrors);
+  if (Object.keys(validationErrors).length > 0) return;
 
-    setIsLoading(true);
+  setIsLoading(true);
+  setErrors((prev) => ({ ...prev, form: null }));
 
-    // ✅ FIX: setErrors use karo (plural), aur sirf 'form' key clear karo
-    setErrors((prev) => ({ ...prev, form: null }));
+  try {
+    // ✅ AuthContext returns { success, user, error }
+    const result = await login(formData.identifier, formData.password);
 
-    try {
-      // ✅ Context ka login function use karo
-      const userData = await login(formData.identifier, formData.password);
-
-      // ✅ Role based redirect (ProjectShaala logic)
-      if (userData.role === "owner" || userData.role === "admin") {
-        router.push("/admin");
-      } 
-      else if (userData.role === "developer") {
-        router.push("/developer");
-      }
-      else {
-        // Default: buyer
-        router.push("/dashboard");
-      }
-    } catch (err) {
-      // ✅ API error ko 'form' key mein store karo taaki UI mein dikh sake
-      setErrors((prev) => ({ ...prev, form: err.message }));
-    } finally {
-      setIsLoading(false);
+    if (!result.success) {
+      throw new Error(result.error || "Login failed");
     }
-  };
+
+    const userData = result.user; // Extract the actual user object
+
+    // ✅ Role based redirect
+    if (userData.role === "owner" || userData.role === "admin") {
+      router.push("/admin");
+    } else if (userData.role === "developer") {
+      router.push("/developer");
+    } else {
+      router.push("/dashboard");
+    }
+  } catch (err) {
+    setErrors((prev) => ({ ...prev, form: err.message }));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleBlur = (field) => {
     const validationErrors = validateForm();
