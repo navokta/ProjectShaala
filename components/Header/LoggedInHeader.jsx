@@ -64,12 +64,12 @@ const LoggedInHeader = ({ userType, role }) => {
             <div className="flex-1 max-w-[160px]">
               <SearchBar mobile withFilter={true} />
             </div>
-            <Link href="/messages" className="p-2 text-gray-400 hover:text-gray-500">
+            {/* <Link href="/messages" className="p-2 text-gray-400 hover:text-gray-500">
               <EnvelopeIcon className="h-5 w-5" />
             </Link>
             <Link href={`/${userType}/notifications`} className="p-2 text-gray-400 hover:text-gray-500">
               <BellIcon className="h-5 w-5" />
-            </Link>
+            </Link> */}
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"

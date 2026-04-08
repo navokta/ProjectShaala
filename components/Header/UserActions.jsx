@@ -17,20 +17,20 @@ const UserActions = ({ userType, mobile = false, onLinkClick }) => {
             Become Developer
           </Link>
         )}
-        <Link
+        {/* <Link
           href="/messages"
           className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
           onClick={onLinkClick}
         >
           Messages
-        </Link>
-        <Link
+        </Link> */}
+        {/* <Link
           href={`/${userType}/notifications`}
           className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
           onClick={onLinkClick}
         >
           Notifications
-        </Link>
+        </Link> */}
         <Link
           href={userType === 'buyer' ? '/dashboard' : '/developer'}
           className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
@@ -45,13 +45,13 @@ const UserActions = ({ userType, mobile = false, onLinkClick }) => {
         >
           Profile
         </Link>
-        <Link
+        {/* <Link
           href="/settings"
           className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-900 hover:text-white rounded-md"
           onClick={onLinkClick}
         >
           Settings
-        </Link>
+        </Link> */}
         <button
           onClick={() => {
             // handle logout
@@ -77,16 +77,16 @@ const UserActions = ({ userType, mobile = false, onLinkClick }) => {
         </Link>
       )}
       {/* Messages Icon */}
-      <Link href="/messages" className="relative p-2 text-gray-400 hover:text-gray-500">
+      {/* <Link href="/messages" className="relative p-2 text-gray-400 hover:text-gray-500">
         <EnvelopeIcon className="h-6 w-6" />
         <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
-      </Link>
+      </Link> */}
 
       {/* Notifications Icon */}
-      <Link href={`/${userType}/notifications`} className="relative p-2 text-gray-400 hover:text-gray-500">
+      {/* <Link href={`/${userType}/notifications`} className="relative p-2 text-gray-400 hover:text-gray-500">
         <BellIcon className="h-6 w-6" />
         <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
-      </Link>
+      </Link> */}
 
       {/* Dashboard Button */}
       <Link
