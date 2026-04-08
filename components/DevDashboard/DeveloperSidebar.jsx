@@ -145,6 +145,14 @@ export default function DeveloperSidebar({ developer, stats, onLogout }) {
                 ₹{developer?.hourlyRate}/hr
               </p>
             </div>
+            <Link
+              href="/"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-700 
+                hover:bg-gray-100 hover:text-gray-900 transition-all duration-200"
+            >
+              <HomeIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <span>Back to Home</span>
+            </Link>
             <button
               onClick={onLogout}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-700 
