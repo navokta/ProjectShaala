@@ -15,6 +15,7 @@ import {
   Award,
   ChevronLeft
 } from "lucide-react";
+import MessageButton from "@/components/Messages/MessageButton";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -93,16 +94,32 @@ export default async function ProjectDetailsPage({ params }) {
                   </div>
                   
                   {project.status === "open" ? (
-                    <Link
-                      href={`/developer/projects/${project._id.toString()}/bid`}
-                      className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full md:w-auto transition-colors"
-                    >
-                      Place a Bid
-                    </Link>
+                    <div className="w-full flex sm:flex-row flex-col gap-3">
+                      <Link
+                        href={`/developer/projects/${project._id.toString()}/bid`}
+                        className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                      >
+                        Place a Bid
+                      </Link>
+                      <MessageButton
+                        receiverId={project.buyer}
+                        dashboardPath="/developer/messages"
+                        label="Message Buyer"
+                        className="flex-1 px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-md shadow-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+                      />
+                    </div>
                   ) : (
-                    <span className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-500 bg-gray-100 cursor-not-allowed w-full md:w-auto">
-                      Bidding Closed
-                    </span>
+                    <div className="w-full flex sm:flex-row flex-col gap-3">
+                      <span className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-500 bg-gray-100 cursor-not-allowed">
+                        Bidding Closed
+                      </span>
+                      <MessageButton
+                        receiverId={project.buyer}
+                        dashboardPath="/developer/messages"
+                        label="Message Buyer"
+                        className="flex-1 px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-md shadow-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+                      />
+                    </div>
                   )}
                   <p className="mt-2 text-xs text-gray-500">{project.bidCount} proposals so far</p>
                 </div>
