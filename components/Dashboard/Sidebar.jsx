@@ -33,6 +33,11 @@ const navigation = [
     icon: ChatBubbleLeftRightIcon,
     badge: true,
   },
+  {
+    name: "Chat Requests",
+    href: "/dashboard/message-requests",
+    icon: ChatBubbleLeftRightIcon,
+  },
   { name: "Payments", href: "/dashboard/payments", icon: CreditCardIcon },
   { name: "Profile", href: "/dashboard/profile", icon: UserCircleIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
