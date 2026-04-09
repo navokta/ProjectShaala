@@ -17,6 +17,7 @@ import {
   XMarkIcon,
   EyeIcon,
   ChartBarIcon,
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
@@ -28,6 +29,17 @@ const navigation = [
     badge: true,
   },
   { name: "Active Projects", href: "/developer/projects", icon: BriefcaseIcon },
+  {
+    name: "Messages",
+    href: "/developer/messages",
+    icon: ChatBubbleLeftRightIcon,
+    badge: true,
+  },
+  {
+    name: "Chat Requests",
+    href: "/developer/message-requests",
+    icon: ChatBubbleLeftRightIcon,
+  },
   { name: "Earnings", href: "/developer/earnings", icon: CurrencyRupeeIcon },
   { name: "Profile", href: "/developer/profile", icon: UserCircleIcon },
   { name: "Portfolio", href: "/developer/portfolio", icon: EyeIcon },
