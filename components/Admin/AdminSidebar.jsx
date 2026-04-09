@@ -12,6 +12,7 @@ import {
   TagIcon,
   UserCircleIcon,
   ArrowLeftOnRectangleIcon, // For home
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
@@ -22,6 +23,7 @@ const navigation = [
   { name: "Settings", href: "/admin/settings", icon: Cog6ToothIcon },
   { name: "Buyer Bids", href: "/admin/buyer-bids", icon: TagIcon },
   { name: "Developer Bids", href: "/admin/developer-bids", icon: DocumentTextIcon },
+  { name: "Conversations", href: "/admin/conversations", icon: ChatBubbleLeftRightIcon },
   { name: "Profile", href: "/admin/profile", icon: UserCircleIcon },
 ];
 
