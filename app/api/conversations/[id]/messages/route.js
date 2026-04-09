@@ -60,9 +60,13 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: `Cannot send message, status is ${conversation.status}` }, { status: 400 });
     }
 
+    // Identify receiver robustly (fallback to first participant if chatting with oneself during testing)
+    const receiverId = conversation.participants.find(p => p.toString() !== user._id.toString()) || conversation.participants[0];
+
     const message = await Message.create({
       conversationId: id,
       sender: user._id,
+      receiver: receiverId,
       content
     });
 
