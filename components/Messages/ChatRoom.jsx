@@ -12,6 +12,16 @@ export default function ChatRoom({ user, chatId }) {
   const [sending, setSending] = useState(false);
   
   const endRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  };
 
   const fetchChat = async () => {
     try {
@@ -26,7 +36,7 @@ export default function ChatRoom({ user, chatId }) {
       if (msgData.success) {
           if (messages.length !== msgData.data.length) {
               setMessages(msgData.data);
-              setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+              setTimeout(scrollToBottom, 100);
           }
       }
       setLoading(false);
@@ -38,7 +48,7 @@ export default function ChatRoom({ user, chatId }) {
 
   useEffect(() => {
     fetchChat();
-    const interval = setInterval(fetchChat, 4000); // Poll every 4 seconds
+    const interval = setInterval(fetchChat, 4000); // Resume active polling
     return () => clearInterval(interval);
   }, [chatId]);
 
@@ -57,7 +67,7 @@ export default function ChatRoom({ user, chatId }) {
       if (data.success) {
         setMessages((prev) => [...prev, data.data]);
         setContent("");
-        setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+        setTimeout(scrollToBottom, 100);
       } else {
         alert(data.error || "Failed to send message");
       }
@@ -99,7 +109,7 @@ export default function ChatRoom({ user, chatId }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30">
         {messages.length === 0 ? (
            <div className="text-center text-gray-400 text-sm py-10">Start the conversation...</div>
         ) : (
