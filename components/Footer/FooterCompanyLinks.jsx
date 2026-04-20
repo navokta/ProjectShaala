@@ -4,6 +4,7 @@ import Link from 'next/link';
 const links = [
   { name: 'FAQ', href: '/faq' },
   { name: 'Terms & Conditions', href: '/terms' },
+  { name: 'How-it-Works', href: '/how-it-works' },
 ];
 
 const FooterCompanyLinks = () => {

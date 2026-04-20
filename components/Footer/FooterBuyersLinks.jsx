@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 const links = [
   { name: 'Explore Projects', href: '/projects' },
+  { name: 'Post a Project', href: '/dashboard/bids/create' },
 ];
 
 const FooterBuyersLinks = () => {
