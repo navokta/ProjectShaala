@@ -21,7 +21,7 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "My Projects", href: "/dashboard/projects", icon: FolderIcon },
-  { name: "Post a Project", href: "/dashboard/post-project", icon: PlusIcon },
+  { name: "Post a Project", href: "/dashboard/bids/create", icon: PlusIcon },
   {
     name: "Bids & Proposals",
     href: "/dashboard/bids",
