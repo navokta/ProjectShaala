@@ -24,7 +24,7 @@ import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const SignupModal = () => {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { register  } = useAuth();
 
   // Form States
   const [formData, setFormData] = useState({
@@ -137,7 +137,7 @@ const SignupModal = () => {
     setIsLoading(true);
     try {
       // 1. Create user account
-      const userData = await signup(formData);
+      const userData = await register(formData);
       console.log("✅ User created:", userData);
 
       // 2. Save email for resend functionality
