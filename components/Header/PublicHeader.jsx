@@ -14,7 +14,6 @@ const PublicHeader = () => {
 
   const navLinks = [
     { name: 'Explore Projects', href: '/projects' },
-    { name: 'Developers', href: '/developers' },
     { name: 'How it Works', href: '/how-it-works' },
     { name: 'Pricing', href: '/pricing' },
   ];

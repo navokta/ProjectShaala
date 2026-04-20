@@ -21,7 +21,6 @@ const LoggedInHeader = ({ userType, role }) => {
 
   const navLinks = [
     { name: 'Projects', href: '/projects' },
-    { name: 'Developers', href: '/developers' },
   ];
 
   if (userType === 'buyer') {
