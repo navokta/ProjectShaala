@@ -38,7 +38,7 @@ const navigation = [
     href: "/dashboard/message-requests",
     icon: ChatBubbleLeftRightIcon,
   },
-  { name: "Payments", href: "/dashboard/payments", icon: CreditCardIcon },
+  { name: "Hire a Developer", href: "/dashboard/bids/hire", icon: CreditCardIcon },
   { name: "Profile", href: "/dashboard/profile", icon: UserCircleIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
 ];
