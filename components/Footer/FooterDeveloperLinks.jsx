@@ -5,6 +5,7 @@ import Link from 'next/link';
 const links = [
   { name: 'Become Developer', href: '/apply-developer' },
   { name: 'Pricing & Fees', href: '/pricing' },
+  { name: 'Client Project', href: '/developer/bids' },
 ];
 
 
